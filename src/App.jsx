@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react'
-import './App.css'
+import './assets/css/App.css';
+import './assets/css/flex.css';
 import TextInput from './comps/TextInput.jsx';
 import ButtonSelector from './comps/ButtonSelector.jsx';
 import { loadArrayFromLS } from './utils.jsx';
+import { IconPng } from './comps/IconPng.jsx';
+import { SearchItem, ScheduleItem } from './comps/ListItems.jsx';
+const API_BASE_URL = 'http://localhost:3500/api/';
+
 
 
 function App() {
@@ -10,15 +15,96 @@ function App() {
   const [itemSearch, setItemSearch] = useState(localStorage.getItem("itemSearch") || "");
   const [filterType, setFilterType] = useState(() => loadArrayFromLS("filterType", 3));
   const [filterGrade, setFilterGrade] = useState(() => loadArrayFromLS("filterGrade", 5));
+  const [searchList, setSearchList] = useState([]);
+  const [schedule, setSchedule] = useState(() => {
+    const saved = localStorage.getItem('schedule');
+    return saved ? JSON.parse(saved) : {};
+  });
 
   useEffect(() => { localStorage.setItem("itemSearch", itemSearch); }, [itemSearch]);
   useEffect(() => { localStorage.setItem("filterType", JSON.stringify(filterType)); }, [filterType]);
   useEffect(() => { localStorage.setItem("filterGrade", JSON.stringify(filterGrade)); }, [filterGrade]);
+  useEffect(() => { localStorage.setItem('schedule', JSON.stringify(schedule)); }, [schedule]);
+
+  useEffect(() => {
+    const handleSearch = async (data) => {
+
+      const resp = await fetch(`${API_BASE_URL}search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', },
+        body: JSON.stringify(data)
+      });
+
+      const result = await resp.json();
+      if (resp.ok && result.success) {
+
+
+        setSearchList(result.data);
+      } else {
+        setSearchList(<><b><u>search error:</u></b><br /> {result.error}</>);
+      }
+
+
+    }
+    const data = {
+      substr: itemSearch,
+      type: filterType,
+      grade: filterGrade
+    }
+    handleSearch(data);
+  },
+    [itemSearch, filterType, filterGrade]);
 
   const itemSearchChanged = (value) => { setItemSearch(value); }
   const filterTypeChanged = (value) => { setFilterType(value); }
   const filterGradeChanged = (value) => { setFilterGrade(value); }
 
+
+  const searchItemClick = (item) => {
+
+
+
+    setSchedule((prev) => {
+      const existingItem = prev[item.id];
+
+      if (existingItem) {
+        return {
+          ...prev,
+          [item.id]: {
+            ...existingItem,
+            count: existingItem.count + 1
+          }
+        };
+      }
+
+      return {
+        ...prev,
+        [item.id]: { ...item, count: 1 }
+      };
+
+    });
+  };
+  const scheduleItemCount = (item_id, count) => {
+    setSchedule((prev) => {
+      // Если предмета вдруг нет (защита), возвращаем как было
+      if (!prev[item_id]) return prev;
+
+      return {
+        ...prev,                 // Копируем весь старый список
+        [item_id]: {             // Находим нужный ящик по ID
+          ...prev[item_id],      // Копируем старые данные предмета (имя, иконку)
+          count: count           // И перезаписываем ТОЛЬКО количество
+        }
+      };
+    });
+  };
+  const scheduleItemDelete = (item_id) => {
+    setSchedule((prev) => {
+      const newSchedule = { ...prev }; // Делаем копию объекта
+      delete newSchedule[item_id];     // Удаляем ключ
+      return newSchedule;              // Возвращаем обновленный объект
+    });
+  };
   return (
     <div className="container">
       <div className="item_search">
@@ -41,9 +127,33 @@ function App() {
           type="grade"
         />
       </div>
-      <div className="search_list">search_list</div>
+
+      <div className="search_list flex_rows">
+
+        {searchList.map((item) => (
+          <SearchItem
+            key={item.id}
+            item={item}
+            className="search_item flex_row_left_center"
+            onClick={() => searchItemClick(item)}
+          />
+        ))}
+
+      </div>
       <div className="history_list">history_list</div>
-      <div className="current_schedule">current_schedule</div>
+      <div className="current_schedule">
+        {Object.values(schedule).map((item) => (
+          <ScheduleItem
+            key={item.id}
+            item={item}
+            className="schedule_item flex_row_left_center"
+            onCount={scheduleItemCount}
+            onDelete={scheduleItemDelete}
+          />
+
+        ))}
+
+      </div>
       <div className="solution">solution</div>
     </div>
   )

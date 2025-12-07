@@ -44,18 +44,13 @@ const TextInput = ({
             />
 
             {value && (
-                <button
+                <button className='red_cross'
                     onClick={handleClear}
                     style={{
-                        marginLeft: "-35px", // Сдвигаем кнопку влево, чтобы она "залезла" на инпут
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        color: "red",
-                        fontSize:"20px"
+                        marginLeft: "-35px",
+
                     }}
-                    title="Стереть" // Подсказка при наведении
+                    title="Стереть"
                 >
                     ✕
                 </button>

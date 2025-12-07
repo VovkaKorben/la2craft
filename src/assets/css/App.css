@@ -4,6 +4,13 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  /* Растягиваем страницу на весь вьюпорт */
+  margin: 0;
+  overflow: hidden;
+  /* Убираем скролл у всей страницы, чтобы скроллили только дивы */
+}
 
 #root {
   width: 100%;
@@ -18,8 +25,8 @@
 
 .container {
   display: grid;
-  grid-template-columns: 1fr 1fr 50px 1fr;
-  grid-template-rows: 40px 40px 40% 50%;
+  grid-template-columns: 350px 1fr 50px 1fr;
+  grid-template-rows: 40px 40px 3fr 5fr;
   gap: 5px 5px;
   /* grid-auto-flow: row; */
   width: 100%;
@@ -60,10 +67,16 @@
 }
 
 
-.container>div {
-  border: 1px dotted rgba(255, 0, 0, 0.35);
-}
 
+.search_list,
+.history_list,
+.current_schedule,
+.solution {
+  border: 1px dotted rgba(7, 85, 201, 0.35);
+  overflow: auto;
+  min-height: 0;
+  min-width: 0;
+}
 
 input[type="text"] {
   width: 100%;
@@ -101,4 +114,43 @@ input[type="text"]:focus {
 
 img {
   vertical-align: top;
+}
+
+.search_item, .schedule_item {
+  padding: 2px;
+  margin: 2px;
+  background: #e4e8ff;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 300px;
+}
+
+
+.search_item {
+
+
+  cursor: pointer;
+
+  /* 3. Рисуем троеточие */
+  text-overflow: ellipsis;
+}
+
+.search_item img {
+  margin-right: 5px;
+}
+
+
+
+
+.schedule_item input[type="number"] {
+  width: 50px;
+}
+
+button.red_cross {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: red;
+  font-size: 20px;
 }

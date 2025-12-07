@@ -32,7 +32,7 @@ export async function openDb() {
     sqlite3.verbose();
 
     const db = await open({
-        filename: './test.db',
+        filename: './l2.db',
         driver: sqlite3.Database
     });
 
