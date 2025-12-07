@@ -1,6 +1,9 @@
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
+
 
 #root {
   width: 100%;
@@ -74,4 +77,28 @@ input[type="text"] {
 input[type="text"]:focus {
   border-color: #2f3d8f;
   transition: border-color 300ms ease;
+}
+
+
+
+.button-selector>div {
+
+  width: 32px;
+  height: 32px;
+}
+
+.button-selector>div:hover {
+  outline: 1px solid red;
+  /* Загоняем его внутрь */
+  outline-offset: -1px;
+
+  /* box-shadow: inset 0 0 0 3px blue; */
+}
+
+.transp {
+  opacity: 0.2;
+}
+
+img {
+  vertical-align: top;
 }

@@ -1,0 +1,34 @@
+### test
+GET http://localhost:3500/api/health
+
+### reg
+POST http://localhost:3500/api/register HTTP/1.1
+content-type: application/json
+
+{
+    "login": "1",
+    "password": "1",
+    "phone": "1",
+    "email": "1"
+}
+
+### confirm registration
+GET http://localhost:3500/api/confirm?link=gPEg7xYDCZ_D7cp7h1fPZOM1X56PeE0gKi3WTvtshKU
+
+### login OK
+POST http://localhost:3500/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "login": "aaa",
+    "password": "bbb",
+}
+
+### login OK
+POST http://localhost:3500/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "login": "xxx",
+    "password": "yyy"
+}

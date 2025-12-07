@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
 
-
 const TextInput = ({
     onChange,
     placeholder = "",
@@ -48,12 +47,13 @@ const TextInput = ({
                 <button
                     onClick={handleClear}
                     style={{
-                        marginLeft: "-25px", // Сдвигаем кнопку влево, чтобы она "залезла" на инпут
+                        marginLeft: "-35px", // Сдвигаем кнопку влево, чтобы она "залезла" на инпут
                         background: "transparent",
                         border: "none",
                         cursor: "pointer",
                         fontWeight: "bold",
-                        color: "red"
+                        color: "red",
+                        fontSize:"20px"
                     }}
                     title="Стереть" // Подсказка при наведении
                 >
