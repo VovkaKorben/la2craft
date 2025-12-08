@@ -6,6 +6,7 @@ import ButtonSelector from './comps/ButtonSelector.jsx';
 import { loadArrayFromLS } from './utils.jsx';
 import { IconPng } from './comps/IconPng.jsx';
 import { SearchItem, ScheduleItem } from './comps/ListItems.jsx';
+import InvImport from './comps/InvImport.jsx';
 const API_BASE_URL = 'http://localhost:3500/api/';
 
 
@@ -16,6 +17,8 @@ function App() {
   const [filterType, setFilterType] = useState(() => loadArrayFromLS("filterType", 3));
   const [filterGrade, setFilterGrade] = useState(() => loadArrayFromLS("filterGrade", 5));
   const [searchList, setSearchList] = useState([]);
+  const [inventory, setInventory] = useState(() => loadArrayFromLS("inventory", 0));
+  const [inventoryImporting, setInventoryImporting] = useState(true);
   const [schedule, setSchedule] = useState(() => {
     const saved = localStorage.getItem('schedule');
     return saved ? JSON.parse(saved) : {};
@@ -106,56 +109,74 @@ function App() {
     });
   };
   return (
-    <div className="container">
-      <div className="item_search">
-        <TextInput
-          onChange={itemSearchChanged}
-          initValue={itemSearch}
-        />
-      </div>
-      <div className="type_selector">
-        <ButtonSelector
-          initValue={filterType}
-          onChange={filterTypeChanged}
-          type="type"
-        />
-      </div>
-      <div className="grade_selector">
-        <ButtonSelector
-          initValue={filterGrade}
-          onChange={filterGradeChanged}
-          type="grade"
-        />
-      </div>
-
-      <div className="search_list flex_rows">
-
-        {searchList.map((item) => (
-          <SearchItem
-            key={item.id}
-            item={item}
-            className="search_item flex_row_left_center"
-            onClick={() => searchItemClick(item)}
+    <>
+      {inventoryImporting && <InvImport/>}
+      <div className="container">
+        <div className="item_search">
+          <TextInput
+            onChange={itemSearchChanged}
+            initValue={itemSearch}
           />
-        ))}
-
-      </div>
-      <div className="history_list">history_list</div>
-      <div className="current_schedule">
-        {Object.values(schedule).map((item) => (
-          <ScheduleItem
-            key={item.id}
-            item={item}
-            className="schedule_item flex_row_left_center"
-            onCount={scheduleItemCount}
-            onDelete={scheduleItemDelete}
+        </div>
+        <div className="type_selector">
+          <ButtonSelector
+            initValue={filterType}
+            onChange={filterTypeChanged}
+            type="type"
           />
+        </div>
+        <div className="grade_selector">
+          <ButtonSelector
+            initValue={filterGrade}
+            onChange={filterGradeChanged}
+            type="grade"
+          />
+        </div>
 
-        ))}
+        <div className="search_list flex_rows">
+
+          {searchList.map((item) => (
+            <SearchItem
+              key={item.id}
+              item={item}
+              className="search_item flex_row_left_center"
+              onClick={() => searchItemClick(item)}
+            />
+          ))}
+
+        </div>
+        <div className="history_list">history_list</div>
+        <div className="current_schedule">
+          {Object.values(schedule).map((item) => (
+            <ScheduleItem
+              key={item.id}
+              item={item}
+              className="schedule_item flex_row_left_center"
+              onCount={scheduleItemCount}
+              onDelete={scheduleItemDelete}
+            />
+
+          ))}
+
+        </div>
+        <div className="solution">solution</div>
+
+
+
+
+        <div className="inventory_show flex_row_center_center">Inventory: {inventory.length} item(s)
+        </div>
+        <div className="inventory_import flex_row_center_center">
+          <IconPng name="action018" alt="Import Inventory" />
+          inventory_import</div>
+
+
+
+
+
 
       </div>
-      <div className="solution">solution</div>
-    </div>
+    </>
   )
 }
 

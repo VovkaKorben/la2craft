@@ -20,6 +20,7 @@ html, body {
 
   padding: 10px;
   margin: 0px;
+  /* display: flex;  justify-content: center;  align-items: center; */
 
 }
 
@@ -27,13 +28,13 @@ html, body {
   display: grid;
   grid-template-columns: 350px 1fr 50px 1fr;
   grid-template-rows: 40px 40px 3fr 5fr;
-  gap: 5px 5px;
+  gap: 25px 25px;
   /* grid-auto-flow: row; */
   width: 100%;
   height: 100%;
   grid-template-areas:
-    "item_search item_search . history_list"
-    "type_selector grade_selector . history_list"
+    "item_search item_search . inventory_show"
+    "type_selector grade_selector . inventory_import"
     "search_list search_list search_list history_list"
     "current_schedule solution solution solution";
 }
@@ -66,6 +67,13 @@ html, body {
   grid-area: solution;
 }
 
+.inventory_import {
+  grid-area: inventory_import;
+}
+
+.inventory_show {
+  grid-area: inventory_show;
+}
 
 
 .search_list,
@@ -153,4 +161,25 @@ button.red_cross {
   font-weight: bold;
   color: red;
   font-size: 20px;
+}
+
+
+.inventory_import_win {
+
+  position: fixed;
+  top: 10vh;
+  height: 80vh;
+
+  left: 10vw;
+  width: 80vw;
+
+
+  z-index: 9999;
+  /* width: 500px; */
+  /* height: 500px; */
+  /* margin: 0 auto; */
+  /* left:50%; */
+  background-color: rgb(222, 248, 230);
+  box-shadow: 10px 10px 14px 0px rgba(0, 0, 0, 0.75);
+
 }
