@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import './assets/css/App.css';
 import './assets/css/flex.css';
+import './assets/css/import.css';
+import './assets/css/vcl.css';
 import TextInput from './comps/TextInput.jsx';
 import ButtonSelector from './comps/ButtonSelector.jsx';
-import { loadArrayFromLS } from './utils.jsx';
+import { loadArrayFromLS, loadDataFromLS } from './utils.jsx';
 import { IconPng } from './comps/IconPng.jsx';
 import { SearchItem, ScheduleItem } from './comps/ListItems.jsx';
 import InvImport from './comps/InvImport.jsx';
@@ -17,8 +19,8 @@ function App() {
   const [filterType, setFilterType] = useState(() => loadArrayFromLS("filterType", 3));
   const [filterGrade, setFilterGrade] = useState(() => loadArrayFromLS("filterGrade", 5));
   const [searchList, setSearchList] = useState([]);
-  const [inventory, setInventory] = useState(() => loadArrayFromLS("inventory", 0));
-  const [inventoryImporting, setInventoryImporting] = useState(true);
+  const [inventory, setInventory] = useState(() => loadDataFromLS("inventory", []));
+  const [inventoryImporting, setInventoryImporting] = useState(false);
   const [schedule, setSchedule] = useState(() => {
     const saved = localStorage.getItem('schedule');
     return saved ? JSON.parse(saved) : {};
@@ -61,7 +63,24 @@ function App() {
   const itemSearchChanged = (value) => { setItemSearch(value); }
   const filterTypeChanged = (value) => { setFilterType(value); }
   const filterGradeChanged = (value) => { setFilterGrade(value); }
+  const inventoryImportDone = (incomingData) => {
+    setInventoryImporting(false);
+    // 2. Проверяем: если пришел НЕ null, значит нажали OK и данные есть
+    if (incomingData !== null) {
+      console.log("Импортировано:", incomingData);
 
+      // 3. Обновляем стейт
+      setInventory(incomingData);
+
+      // 4. Важный момент: Сохранение в LocalStorage
+      // Если у вас нет useEffect, который следит за inventory, сохраните вручную тут:
+      localStorage.setItem("inventory", JSON.stringify(incomingData));
+    } else {
+      console.log("Импорт отменен пользователем");
+    }
+
+
+  };
 
   const searchItemClick = (item) => {
 
@@ -110,7 +129,7 @@ function App() {
   };
   return (
     <>
-      {inventoryImporting && <InvImport/>}
+
       <div className="container">
         <div className="item_search">
           <TextInput
@@ -164,16 +183,20 @@ function App() {
 
 
 
-        <div className="inventory_show flex_row_center_center">Inventory: {inventory.length} item(s)
+        <div className="inventory_show flex_row_center_center">
+          Inventory: {Object.keys(inventory || {}).length} item(s)
         </div>
-        <div className="inventory_import flex_row_center_center">
+        <div
+          className="inventory_import flex_row_center_center"
+          onClick={() => setInventoryImporting(true)}
+        >
           <IconPng name="action018" alt="Import Inventory" />
           inventory_import</div>
 
 
 
 
-
+        {inventoryImporting && <InvImport onClose={inventoryImportDone} />}
 
       </div>
     </>
