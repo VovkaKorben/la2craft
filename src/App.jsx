@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import './assets/css/App.css';
 import './assets/css/flex.css';
+import './assets/css/vcl.css';
+import './assets/css/import.css';
 import TextInput from './comps/TextInput.jsx';
 import ButtonSelector from './comps/ButtonSelector.jsx';
 import { loadArrayFromLS } from './utils.jsx';
@@ -110,7 +112,7 @@ function App() {
   };
   return (
     <>
-      {inventoryImporting && <InvImport/>}
+
       <div className="container">
         <div className="item_search">
           <TextInput
@@ -176,6 +178,7 @@ function App() {
 
 
       </div>
+      {inventoryImporting && <InvImport />}
     </>
   )
 }

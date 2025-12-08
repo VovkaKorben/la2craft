@@ -1,0 +1,47 @@
+.inventory_import_win {
+    z-index: 9999;
+    font-size: x-large;
+}
+
+
+.win_bg {
+    position: fixed;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    background-color: #fffe;
+
+}
+
+.win_content {
+    position: fixed;
+    top: 10vh;
+    left: 10vw;
+    width: 80vw;
+
+    background-color: rgb(254, 253, 231);
+    box-shadow: 15px 15px 24px 0px rgba(0, 0, 0, 0.55);
+    padding: 20px;
+    text-align: center;
+}
+
+.win_content > * 
+{
+  margin-top: 10px;
+    margin-bottom: 10px;
+}
+.win_part {
+    border: 5px solid #c5cdf8;
+    /* height: 20%; */
+    border-radius: 10px;
+    padding: 10px;
+   
+    width: 100%;
+}
+
+
+.large {
+    font-size: 32px;
+    font-weight: bold;
+}
