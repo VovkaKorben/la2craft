@@ -70,6 +70,7 @@ body {
 
 .inventory_import {
   grid-area: inventory_import;
+  background-color: blanchedalmond;
 }
 
 .inventory_show {
@@ -114,13 +115,20 @@ img {
 .search_item,
 .schedule_item {
   padding: 2px;
-  margin: 2px;
+  margin: 1px;
   background: #e4e8ff;
   white-space: nowrap;
   overflow: hidden;
   width: 300px;
+  /* height: 36px; */
+  height: 56px;
 }
 
+.schedule_item .ed {
+  border: 1px solid red;
+  position: absolute;
+  right: 0px;
+}
 
 .search_item {
 
@@ -138,9 +146,7 @@ img {
 
 
 
-.schedule_item input[type="number"] {
-  width: 50px;
-}
+
 
 button.red_cross {
   background: transparent;

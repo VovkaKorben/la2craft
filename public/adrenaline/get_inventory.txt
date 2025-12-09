@@ -1,6 +1,6 @@
 uses SysUtils,Classes;
 
-const FileName = 'inv.txt';
+const FileName = 'inventory_result.txt';
 
 procedure SaveToFile(s:String);
 var sl:TStringList;

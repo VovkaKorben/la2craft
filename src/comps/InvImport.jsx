@@ -1,67 +1,194 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 
 
 const InvImport = ({
     onClose
 }) => {
+    // Константы ограничений
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 МБ в байтах
+    const ALLOWED_EXTENSIONS = ['txt'];     // Разрешенные расширения
+
+    const inputFile = useRef(null);
+    const [importText, setImportText] = useState("");
+    const [draggedOver, setDraggedOver] = useState(false);
+    const [error, setError] = useState(""); // Стейт для текста ошибки
+    const validateFile = (file) => {
+        setError(""); // Сбрасываем старые ошибки
+
+        // 1. Проверка размера
+        if (file.size > MAX_FILE_SIZE) {
+            setError(`Файл слишком большой! Максимум ${MAX_FILE_SIZE / 1024 / 1024}MB.`);
+            return false;
+        }
+
+        // 2. Проверка расширения (берем имя файла, делим по точке, берем хвост)
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(fileExt)) {
+            setError("Неверный формат! Нужен только .txt");
+            return false;
+        }
+
+        return true;
+    };
 
     const [files, setFiles] = useState([]);
     const inputFile = useRef(null);
 
-    const handleFileLoad = (e) => {
-        const newValue = e.target.value;
-        setValue(newValue);
+    const readFile = (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setImportText(e.target.result);
+        };
+        reader.readAsText(file);
+    };
 
-        if (onChange) {
-            onChange(newValue);
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (validateFile(file)) {
+                readFile(file);
+            } else {
+                e.target.value = '';
+            }
+        }
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setDraggedOver(false);
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            if (validateFile(file)) {
+                readFile(file);
+            }
         }
     };
 
 
 
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const droppedFiles = Array.from(e.dataTransfer.files);
-        setFiles(droppedFiles);
-    };
+
     const handleDragOver = (e) => {
         e.preventDefault();
+        setDraggedOver(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setDraggedOver(false);
+    };
+
+    const parseInput = () => {
+        const parsedItems = {};
+
+        if (importText.trim()) {
+            importText
+                .split(';')
+                .filter(Boolean)
+                .forEach(entry => {
+                    const parts = entry.split(',');
+                    if (parts.length >= 2) {
+                        const id = parseInt(parts[0]);
+                        const count = parseInt(parts[1]);
+
+                        if (!isNaN(id) && !isNaN(count)) {
+                            if (!(id in parsedItems))
+                                parsedItems[id] = 0;
+                            parsedItems[id] += count;
+                        }
+                    }
+                });
+        }
+        return parsedItems;
+    }
+
+    const parsedCount = useMemo(() => {
+        return Object.keys(parseInput()).length;
+
+    }, [importText]);
+
+    const handleOK = () => {
+        onClose(parseInput());
+    };
+    const handleCancel = () => {
+        onClose(null);
     };
 
     return (
         <div className="inventory_import_win">
-            <div className="win_bg"></div>
+            <div
+                className="win_bg"
+                onClick={handleCancel}
+            ></div>
 
             <div className="win_content">
 
-                <div className="flex_row_center_center win_part">
-                    1. Download Adrenaline bot script here *LINK*
+                <div className="win_part">
+                    1. Download Adrenaline bot script here <a
+                        target="_blank"            // <-- Исправлено (было _target)
+                        rel="noopener noreferrer"  // <-- Безопасность
+                        download                   // <-- Магия: браузер предложит сохранить файл
+                        href="./adrenaline/get_inventory.txt">get_inventory.txt</a>
                 </div>
-                <div className="flex_row_center_center win_part">
-                    2. Run script, after the script runs, you will find a text file *filename* next to it.
-                </div>
+
                 <div className=" win_part">
-                    3a. Open the file, copy its contents, and put it in this field<br />
-                    <textarea />
+                    2. Run script, then its done - you will find a text file <b>inventory_result.txt</b> next to script.
                 </div>
-                <span style={{ fontSize: "50px" }}>OR</span>
-                <div
-                    onClick={() => inputFile.current.click()}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    className="flex_row_center_center win_part"
-                >
-                    {files.map((file, index) => (
-                        <li key={index}>{file.name}</li>
-                    ))}e
-                    3b. Click here to specify file (you can just drop it here)
-                    <input type='file' id='file' ref={inputFile} style={{ display: 'none' }} />
-                    {/* <input type='file' id='file' ref={inputFile} /> */}
+
+                <div className="flex_row_center_stretch">
+                    <div className="win_part ">
+                        3a. Open the file <b>inventory_result.txt</b>, copy its contents, and put it in this field<br />
+                        <textarea
+                            value={importText}
+                            onChange={(e) => setImportText(e.target.value)}
+                        />
+                    </div>
+
+                    <div
+                        className="flex_row_center_center"
+                        style={{ fontSize: "50px" }}>
+                        OR
+                    </div>
+
+
+                    <div
+                        onClick={() => inputFile.current.click()}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onMouseEnter={() => setDraggedOver(true)}
+                        onMouseLeave={() => setDraggedOver(false)}
+                        style={{ cursor: 'pointer' }}
+                        className={`flex_row_center_center win_part ${draggedOver ? "drag_over" : ""}`}
+                    >
+                        3b. Click here to specify file (you can just drop it here)
+                        <input
+                            type='file'
+                            ref={inputFile}
+                            style={{ display: 'none' }}
+                            onChange={handleFileSelect}
+                        />
+                    </div>
                 </div>
-                <span id="import_hint">import_hint</span>
+
+
+
+
+                <div id="import_hint" style={{ height: '20px', margin: '10px 0', fontWeight: 'bold' }}>
+                    {error && <span style={{ color: 'red' }}>⚠️ {error}</span>}
+                    {!error && parsedCount > 0 && (
+                        <span style={{ color: 'green' }}>Found items: {parsedCount}</span>
+                    )}
+                </div>
+
                 <div>
-                    <button style={{ marginRight: "10px" }}>OK</button>
-                    <button>Cancel</button>
+                    <button
+                        onClick={handleOK}
+                        style={{ marginRight: "10px" }}>OK</button>
+                    <button
+                        onClick={handleCancel}
+                    >
+                        Cancel
+                    </button>
                 </div>
             </div>
         </div>

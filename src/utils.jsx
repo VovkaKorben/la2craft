@@ -1,4 +1,4 @@
-export const  loadArrayFromLS = (key, expectedLength) => {
+export const loadArrayFromLS = (key, expectedLength) => {
     try {
         const savedString = localStorage.getItem(key);
 
@@ -23,4 +23,18 @@ export const  loadArrayFromLS = (key, expectedLength) => {
 
     // Если хоть одна проверка не прошла или была ошибка — возвращаем чистый массив
     return Array(expectedLength).fill(0);
+};
+
+// Простая загрузка для сложных данных (инвентарь, расписание)
+export const loadDataFromLS = (key, defaultValue) => {
+    try {
+        console.log(`loadDataFromLS: ${key}`);
+        const savedString = localStorage.getItem(key);
+        if (!savedString) return defaultValue;
+
+        return JSON.parse(savedString);
+    } catch (e) {
+        console.warn(`Ошибка чтения ключа ${key}:`, e);
+        return defaultValue;
+    }
 };

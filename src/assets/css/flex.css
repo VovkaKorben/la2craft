@@ -78,3 +78,14 @@
   align-items: center;
   align-content: stretch;
 }
+
+
+.flex_row_center_stretch
+{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: stretch;
+	align-content: stretch;
+}
