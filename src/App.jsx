@@ -170,7 +170,7 @@ function App() {
             <ScheduleItem
               key={item.id}
               item={item}
-              className="schedule_item flex_row_left_center"
+              className="flex_row_left_center"
               onCount={scheduleItemCount}
               onDelete={scheduleItemDelete}
             />

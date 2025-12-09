@@ -31,23 +31,29 @@ export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
 
 
     return (
-        <div className={`${className}`}        >
+        <div className={`schedule_item ${className}`}        >
             <IconPng name={item.icon} alt={item.name} />
             {item.name}
-            <input
-                type="number"
-                value={item.count}
-                onChange={handleCount}
-                min={1}
 
-            />
-            <button className='red_cross'
-                onClick={handleDelete}
-                style={{ marginLeft: "-5px" }}
-                title="Стереть"
+            <div 
+               
+                className="ed flex_row_right_center"
             >
-                ✕
-            </button>
+                <input
+                    type="number"
+                    value={item.count}
+                    onChange={handleCount}
+                    min={1}
+                    style={{ width: "70px" }}
+
+                />
+                <button className='red_cross'
+                    onClick={handleDelete}
+                    style={{ marginLeft: "-5px" }}
+                    title="Стереть"
+                >
+                    ✕
+                </button> </div>
         </div>
 
     );

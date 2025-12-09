@@ -30,27 +30,22 @@ const InvImport = ({
 
         return true;
     };
-    const parsedCount = useMemo(() => {
-        if (!importText) return 0;
-        return importText.split(';').filter(item => item.trim().length > 0).length;
-    }, [importText]);
+
 
     const readFile = (file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            // Просто заменяем текст в поле содержимым файла
             setImportText(e.target.result);
         };
         reader.readAsText(file);
     };
+
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Сначала проверяем
             if (validateFile(file)) {
                 readFile(file);
             } else {
-                // Если файл плохой - очищаем инпут, чтобы можно было выбрать другой
                 e.target.value = '';
             }
         }
@@ -59,10 +54,8 @@ const InvImport = ({
     const handleDrop = (e) => {
         e.preventDefault();
         setDraggedOver(false);
-
         const file = e.dataTransfer.files[0];
         if (file) {
-            // Сначала проверяем
             if (validateFile(file)) {
                 readFile(file);
             }
@@ -81,8 +74,8 @@ const InvImport = ({
         e.preventDefault();
         setDraggedOver(false);
     };
-    const handleOK = () => {
-        // Парсим данные
+
+    const parseInput = () => {
         const parsedItems = {};
 
         if (importText.trim()) {
@@ -94,19 +87,27 @@ const InvImport = ({
                     if (parts.length >= 2) {
                         const id = parseInt(parts[0]);
                         const count = parseInt(parts[1]);
-                        // Валидация: ID и Count должны быть числами
+
                         if (!isNaN(id) && !isNaN(count)) {
-                            parsedItems[id] = count;
+                            if (!(id in parsedItems))
+                                parsedItems[id] = 0;
+                            parsedItems[id] += count;
                         }
                     }
                 });
         }
+        return parsedItems;
+    }
 
-        // Передаем результат (пустой объект или заполненный) в onClose
-        onClose(parsedItems);
+    const parsedCount = useMemo(() => {
+        return Object.keys(parseInput()).length;
+
+    }, [importText]);
+
+    const handleOK = () => {
+        onClose(parseInput());
     };
     const handleCancel = () => {
-        // Передаем null, чтобы родитель понял, что это отмена
         onClose(null);
     };
 
@@ -131,10 +132,8 @@ const InvImport = ({
                     2. Run script, then its done - you will find a text file <b>inventory_result.txt</b> next to script.
                 </div>
 
-
-
                 <div className="flex_row_center_stretch">
-                    <div className="win_part flex_col_center_top">
+                    <div className="win_part ">
                         3a. Open the file <b>inventory_result.txt</b>, copy its contents, and put it in this field<br />
                         <textarea
                             value={importText}
@@ -156,12 +155,9 @@ const InvImport = ({
                         onDragLeave={handleDragLeave}
                         onMouseEnter={() => setDraggedOver(true)}
                         onMouseLeave={() => setDraggedOver(false)}
-
                         style={{ cursor: 'pointer' }}
                         className={`flex_row_center_center win_part ${draggedOver ? "drag_over" : ""}`}
-
                     >
-
                         3b. Click here to specify file (you can just drop it here)
                         <input
                             type='file'
@@ -169,19 +165,14 @@ const InvImport = ({
                             style={{ display: 'none' }}
                             onChange={handleFileSelect}
                         />
-
                     </div>
-
                 </div>
 
 
 
 
                 <div id="import_hint" style={{ height: '20px', margin: '10px 0', fontWeight: 'bold' }}>
-                    {/* Если есть ошибка — показываем её красным */}
                     {error && <span style={{ color: 'red' }}>⚠️ {error}</span>}
-
-                    {/* Если ошибки нет, но есть товары — показываем количество зеленым */}
                     {!error && parsedCount > 0 && (
                         <span style={{ color: 'green' }}>Found items: {parsedCount}</span>
                     )}
