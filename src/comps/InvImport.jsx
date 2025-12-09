@@ -32,7 +32,7 @@ const InvImport = ({
     };
 
     const [files, setFiles] = useState([]);
-    const inputFile = useRef(null);
+    // const inputFile = useRef(null);
 
     const readFile = (file) => {
         const reader = new FileReader();

@@ -119,9 +119,16 @@ img {
   background: #e4e8ff;
   white-space: nowrap;
   overflow: hidden;
+  position: relative;
   width: 300px;
-  /* height: 36px; */
-  height: 56px;
+  height: 36px;
+  /* height: 56px; */
+  /* border-radius: 0px 20px 20px 0px; */
+}
+
+.rbox {
+   position: absolute;
+   right: 10px;
 }
 
 .schedule_item .ed {
@@ -155,4 +162,5 @@ button.red_cross {
   font-weight: bold;
   color: red;
   font-size: 20px;
+  width: 30px;
 }

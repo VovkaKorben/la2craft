@@ -87,12 +87,12 @@ function App() {
 
 
     setSchedule((prev) => {
-      const existingItem = prev[item.id];
+      const existingItem = prev[item.id_mk];
 
       if (existingItem) {
         return {
           ...prev,
-          [item.id]: {
+          [item.id_mk]: {
             ...existingItem,
             count: existingItem.count + 1
           }
@@ -101,29 +101,29 @@ function App() {
 
       return {
         ...prev,
-        [item.id]: { ...item, count: 1 }
+        [item.id_mk]: { ...item, count: 1 }
       };
 
     });
   };
-  const scheduleItemCount = (item_id, count) => {
+  const scheduleItemCount = (id_mk, count) => {
     setSchedule((prev) => {
       // Если предмета вдруг нет (защита), возвращаем как было
-      if (!prev[item_id]) return prev;
+      if (!prev[id_mk]) return prev;
 
       return {
         ...prev,                 // Копируем весь старый список
-        [item_id]: {             // Находим нужный ящик по ID
-          ...prev[item_id],      // Копируем старые данные предмета (имя, иконку)
+        [id_mk]: {             // Находим нужный ящик по ID
+          ...prev[id_mk],      // Копируем старые данные предмета (имя, иконку)
           count: count           // И перезаписываем ТОЛЬКО количество
         }
       };
     });
   };
-  const scheduleItemDelete = (item_id) => {
+  const scheduleItemDelete = (id_mk) => {
     setSchedule((prev) => {
       const newSchedule = { ...prev }; // Делаем копию объекта
-      delete newSchedule[item_id];     // Удаляем ключ
+      delete newSchedule[id_mk];     // Удаляем ключ
       return newSchedule;              // Возвращаем обновленный объект
     });
   };
@@ -152,11 +152,11 @@ function App() {
           />
         </div>
 
-        <div className="search_list flex_rows">
+        <div className="search_list flex_cols">
 
           {searchList.map((item) => (
             <SearchItem
-              key={item.id}
+              key={item.id_mk}
               item={item}
               className="search_item flex_row_left_center"
               onClick={() => searchItemClick(item)}
@@ -168,7 +168,7 @@ function App() {
         <div className="current_schedule">
           {Object.values(schedule).map((item) => (
             <ScheduleItem
-              key={item.id}
+              key={item.id_mk}
               item={item}
               className="flex_row_left_center"
               onCount={scheduleItemCount}

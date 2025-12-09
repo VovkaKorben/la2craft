@@ -1,6 +1,9 @@
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 /*
 export async function openDb() {
     return open({
@@ -30,9 +33,9 @@ function formatSqlLog(sql, params) {
 
 export async function openDb() {
     sqlite3.verbose();
-
+const dbPath = path.resolve(__dirname, 'l2.db');
     const db = await open({
-        filename: './l2.db',
+        filename: dbPath,
         driver: sqlite3.Database
     });
 
