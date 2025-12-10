@@ -5,8 +5,13 @@ import sqlite3 from 'sqlite3';
 import morgan from 'morgan';
 
 
+import { craft_init } from './craft_logic.js';
+
+
 
 import { errorHandler, notFound } from './middleware/error.js';
+import { stringifyWithDepthLimit } from '../src/debug.js';
+import { createSmartDict } from './SmartMap.js';
 // const openDb = require('./db'); // Импортируем нашу функцию
 import { openDb } from './dbUtils.js';
 
@@ -14,8 +19,6 @@ dotenv.config();
 
 const { API_PORT = 3500, SQLITE_DB } = process.env;
 
-//const db = new sqlite3.Database(`./${SQLITE_DB}`);
-/*
 
 const app = express();
 app.use(cors());
@@ -43,18 +46,18 @@ app.post('/api/search', async (req, res) => {
 
     // check user  exists
     const data = await db.all(`
-      select i.name,i.icon,r.success_rate,r.id_mk
+      select i.id as item_id, i.name as item_name,i.icon,r.success_rate,r.id_mk,COUNT(i.id) OVER (PARTITION BY i.id) as variants_count
       from items i,recipes r
-      where r.id_item = i.id -- only with existing recipes
-      and i.bodypart is Not null -- disable shots/elixires
-      and i.crystal_type is not null -- disable NG
-      and i.type <> 'EtcItem' -- disable arrows
-      AND NOT (r.level > 7 AND r.success_rate = 100) -- disable 100% top recipes
+      where r.id_item = i.id 
+      and i.bodypart is Not null
+      and i.crystal_type is not null
+      and i.type <> 'EtcItem' 
+      AND NOT (r.level > 7 AND r.success_rate = 100)
       and i.name like '%' || ? || '%'
       order by INSTR('DCBAS', i.crystal_type) desc,i.name asc,r.success_rate desc;
       `, [substr]);
 
-
+console.log(stringifyWithDepthLimit(data,1));
 
     return res.status(200).json({
       success: true,
@@ -73,23 +76,21 @@ app.post('/api/search', async (req, res) => {
 
 
 app.post('/api/solution', async (req, res) => {
-  const { inventory, use_composite, requested } = req.body;
-  console.log(`requested: ${JSON.stringify(requested)}`);
-  // console.log(`use_composite: ${JSON.stringify(use_composite)}`);
+  const { inventory, use_composite, schedule } = req.body;
+  console.log(`schedule: ${JSON.stringify(schedule)}`);
 
-  const recipe_cache = {};
   try {
-    const db = await openDb();
-    requested.forEach((v) => {
-      console.log(`v: ${JSON.stringify(v)}`);
+
+
+    const solution = await craft_init({
+      inventory: inventory,
+      schedule: schedule,
+      use_composite: use_composite
     });
-
-    // const data = await db.all(``, [substr]);
-
-
 
     return res.status(200).json({
       success: true,
+      data: solution
     });
 
   } catch (err) {
@@ -106,8 +107,11 @@ app.post('/api/solution', async (req, res) => {
 
 app.use(notFound);
 app.use(errorHandler);
-*/
 
+
+
+
+/*
 const xxx = {
   "inventory": {
     "26": 1, "39": 2, "43": 1, "57": 194451021, "158": 1, "182": 1, "219": 1, "226": 1, "352": 2, "355": 1, "381": 1, "604": 1, "605": 2, "612": 1, "626": 3, "729": 1, "730": 4, "734": 341,
@@ -159,7 +163,13 @@ const xxx = {
   "use_composite": false
 
 }
-// items = {mk_id:count}
+
+const item_name = async (db, id) => {
+  const i = await db.get(`SELECT name FROM items WHERE id=?`, id);
+  return i.name;
+
+}
+
 const process_craft = async (params, id_mk, count) => {
   try {
 
@@ -174,32 +184,37 @@ const process_craft = async (params, id_mk, count) => {
     }
 
     // for each material try obtain recipe
-    materials = Object.keys(params.cache[id_mk]);
-    const data = await params.db.all(`SELECT material_id,material_count FROM materials WHERE id_mk=?`, id_mk);
+    const materials = Object.keys(params.cache[id_mk]);
+    const placeholders = materials.map(() => '?').join(',');
+    const sub_materials = await params.db.all(`
+      select i.id item_id,r.id_mk from items i
+      left join recipes r on r.id_item = i.id 
+      where i.id in ( ${placeholders} )
+      `, materials);
+    console.log(stringifyWithDepthLimit(sub_materials, 1));
 
+    // if material has recipe - call self again
+    for (const sub of sub_materials) {
 
+      const sub_count = count * params.cache[id_mk][sub.item_id];
+      if (sub.id_mk) {
+        // composite
+        params.level++;
+        params.craft[sub.item_id] += sub_count;
+        await process_craft(params, sub.id_mk, sub_count);
 
-    /*// check recipe in cache
-    const mk_id_request = Object.keys(params.items).filter(id => !params.cache[id]);
-    if (mk_id_request.length) {
-      // prepare cache placeholders
-      // mk_id_request.forEach(id => cache[id] = null);
-      const placeholders = mk_id_request.map(() => '?').join(',');
-      const sql = `SELECT * FROM materials WHERE id_mk IN (${placeholders})`;
-      const data = await params.db.all(sql, mk_id_request);
-      data.forEach((material) => {
-        if (!(material.id_mk in params.cache)) {
-          params.cache[material.id_mk] = {};
-        }
-        params.cache[material.id_mk][material.material_id] = material.material_count;
-      });
+        params.level--;
+      } else {
+        // atomary
+        console.log(`atomary: ${await item_name(params.db, sub.item_id)} * ${sub_count}`);
 
-      // список всех использованных материалов
-      const used_materials = [...new Set(data.map(item => item.material_id))];
+        const use_count = Math.min(params.inventory[sub.item_id], sub_count);
+        params.inventory[sub.item_id] -= use_count;
+        params.lack[sub.item_id] += sub_count - use_count;
 
+      }
 
-    }
-*/
+    };
 
 
   } catch (err) {
@@ -212,14 +227,24 @@ const init = async (v) => {
   const params = {
     cache: {},
     db: await openDb(),
-    level: 0
+    level: 0,
+    inventory: createSmartDict(true ? v.inventory : {}), // production => replace true with use_inventory
+    lack: createSmartDict(),
+    craft: createSmartDict()
   };
   for (const [key, value] of Object.entries(v.requested)) {
-    process_craft(params, value.id_mk, value.count);
+    await process_craft(params, value.id_mk, value.count);
+  }
+
+  for (const [key, value] of Object.entries(params.lack)) {
+    console.log(`LACK: ${await item_name(params.db, key)}: ${value}`);
+  }
+
+  for (const [key, value] of Object.entries(params.craft)) {
+    console.log(`CRAFT: ${await item_name(params.db, key)}: ${value}`);
   }
   return 0;
 
 
 }
-
-init(xxx);
+*/

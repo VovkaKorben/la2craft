@@ -1,5 +1,5 @@
 export const IconPng = ({ name, size = 32, className, ...props }) => {
-    const src = `/icon/${name}.png`;
+    const src = `./icon/${name}.png`;
 
     return (
         <img

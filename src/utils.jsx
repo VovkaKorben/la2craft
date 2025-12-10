@@ -28,7 +28,7 @@ export const loadArrayFromLS = (key, expectedLength) => {
 // Простая загрузка для сложных данных (инвентарь, расписание)
 export const loadDataFromLS = (key, defaultValue) => {
     try {
-        console.log(`loadDataFromLS: ${key}`);
+        // console.log(`loadDataFromLS: ${key}`);
         const savedString = localStorage.getItem(key);
         if (!savedString) return defaultValue;
 

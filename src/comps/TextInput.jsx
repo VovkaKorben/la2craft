@@ -47,8 +47,8 @@ const TextInput = ({
                 <button className='red_cross'
                     onClick={handleClear}
                     style={{
-                        marginLeft: "-35px",
-
+                        // marginLeft: "-35px",
+right: "5px",
                     }}
                     title="Стереть"
                 >

@@ -8,6 +8,7 @@ import ButtonSelector from './comps/ButtonSelector.jsx';
 import { loadArrayFromLS, loadDataFromLS } from './utils.jsx';
 import { IconPng } from './comps/IconPng.jsx';
 import { SearchItem, ScheduleItem } from './comps/ListItems.jsx';
+import { stringifyWithDepthLimit } from './debug.js';
 import InvImport from './comps/InvImport.jsx';
 const API_BASE_URL = 'http://localhost:3500/api/';
 
@@ -25,12 +26,15 @@ function App() {
     const saved = localStorage.getItem('schedule');
     return saved ? JSON.parse(saved) : {};
   });
+  const [solution, setSolution] = useState(null);
 
   useEffect(() => { localStorage.setItem("itemSearch", itemSearch); }, [itemSearch]);
   useEffect(() => { localStorage.setItem("filterType", JSON.stringify(filterType)); }, [filterType]);
   useEffect(() => { localStorage.setItem("filterGrade", JSON.stringify(filterGrade)); }, [filterGrade]);
   useEffect(() => { localStorage.setItem('schedule', JSON.stringify(schedule)); }, [schedule]);
 
+
+  // search update
   useEffect(() => {
     const handleSearch = async (data) => {
 
@@ -59,6 +63,92 @@ function App() {
     handleSearch(data);
   },
     [itemSearch, filterType, filterGrade]);
+
+
+  // solution update
+  const SolutionLack = ({ data }) => {
+
+    const rows = [];
+    data.forEach((item) => {
+      rows.push(
+        <tr key={item.item_id}>
+          <td><IconPng name={item.icon} alt={item.item_name} /></td>
+          <td className='padl'>{item.item_name}</td>
+          <td className='pad ra'>{item.count.toLocaleString()}</td>
+        </tr>);
+    });
+
+
+    return <>Lack<table><tbody>{rows}</tbody></table></>;
+
+
+  }
+  const SolutionCraft = ({ data }) => {
+    const rows = [];
+    // hdr
+    rows.push(
+      <tr key="craft-header">
+        <th></th>
+        <th className='padl la'>Recipe</th>
+        <th className='pad ra'>Count</th>
+        <th className='pad ra'>Sum</th>
+      </tr>);
+
+    // rows
+    let totalSum = 0;
+    data.forEach((item) => {
+      const rowSum = item.count * item.price || 0;
+      totalSum += rowSum;
+
+      rows.push(
+        <tr key={item.item_id}>
+          <td><IconPng name={item.icon} alt={item.item_name} /></td>
+          <td className='padl'>{item.item_name}</td>
+          <td className='pad ra'>{item.count.toLocaleString()}</td>
+          <td className='pad ra'>{(rowSum || "").toLocaleString()}</td>
+        </tr>);
+    });
+    // footer
+    rows.push(
+      <tr key="craft-footer">
+        <th colSpan={3} className='pad ra'>Total</th>
+
+        <th className='pad ra'>{(totalSum || "").toLocaleString()}</th>
+      </tr>);
+
+    return (<>Craft<table><tbody>{rows}</tbody></table></>);
+  }
+
+  useEffect(() => {
+    const handleCalculate = async () => {
+
+      const resp = await fetch(`${API_BASE_URL}solution`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', },
+        body: JSON.stringify({
+          inventory: false ? inventory : [],
+          schedule: schedule,
+          use_composite: false,
+        })
+      });
+
+      const result = await resp.json();
+      if (resp.ok && result.success) {
+
+        setSolution(result.data);
+
+      } else {
+        //setSolution(<><b><u>craft error:</u></b><br /> {result.error}</>);
+      }
+
+
+    }
+
+    handleCalculate();
+  },
+    [schedule, inventory]);
+
+
 
   const itemSearchChanged = (value) => { setItemSearch(value); }
   const filterTypeChanged = (value) => { setFilterType(value); }
@@ -137,20 +227,7 @@ function App() {
             initValue={itemSearch}
           />
         </div>
-        <div className="type_selector">
-          <ButtonSelector
-            initValue={filterType}
-            onChange={filterTypeChanged}
-            type="type"
-          />
-        </div>
-        <div className="grade_selector">
-          <ButtonSelector
-            initValue={filterGrade}
-            onChange={filterGradeChanged}
-            type="grade"
-          />
-        </div>
+
 
         <div className="search_list flex_cols">
 
@@ -165,7 +242,7 @@ function App() {
 
         </div>
         <div className="history_list">history_list</div>
-        <div className="current_schedule">
+        <div className="schedule_list">
           {Object.values(schedule).map((item) => (
             <ScheduleItem
               key={item.id_mk}
@@ -178,28 +255,27 @@ function App() {
           ))}
 
         </div>
-        <div className="solution">solution</div>
-
-
-
-
-        <div className="inventory_show flex_row_center_center">
-          Inventory: {Object.keys(inventory || {}).length} item(s)
+        <div className="solution_lack">
+          {solution && <SolutionLack data={solution.lack} />}
         </div>
+        <div className="solution_craft">
+          {solution && <SolutionCraft data={solution.craft} />}
+        </div>
+
+
+
         <div
-          className="inventory_import flex_row_center_center"
+          className="inventory_show flex_row_center_center"
           onClick={() => setInventoryImporting(true)}
         >
-          <IconPng name="action018" alt="Import Inventory" />
-          inventory_import</div>
-
-
-
-
-        {inventoryImporting && <InvImport onClose={inventoryImportDone} />}
-
+          <IconPng
+            name="action018"
+            alt="Import Inventory"
+            style={{ marginRight: "10px" }}
+          />Inventory: {Object.keys(inventory || {}).length} item(s)
+        </div>
       </div>
-      {inventoryImporting && <InvImport />}
+      {inventoryImporting && <InvImport onClose={inventoryImportDone} />}
     </>
   )
 }

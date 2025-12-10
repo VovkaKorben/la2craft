@@ -6,7 +6,7 @@ POST http://localhost:3500/api/search HTTP/1.1
 content-type: application/json
 
 {
-    "substr": "arca"
+    "substr": "tateo"
 }
 
 

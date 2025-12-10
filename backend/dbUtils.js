@@ -31,13 +31,19 @@ function formatSqlLog(sql, params) {
     });
 }
 
-export async function openDb() {
+
+
+
+export async function openDb(debug = false) {
     sqlite3.verbose();
-const dbPath = path.resolve(__dirname, 'l2.db');
+    const dbPath = path.resolve(__dirname, 'l2.db');
     const db = await open({
         filename: dbPath,
         driver: sqlite3.Database
     });
+    if (!debug) {
+        return db;
+    }
 
     const methodsToLog = ['run', 'get', 'all', 'exec'];
 
@@ -78,5 +84,5 @@ const dbPath = path.resolve(__dirname, 'l2.db');
         };
     });
 
-    return db;
+
 }

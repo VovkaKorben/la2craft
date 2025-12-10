@@ -7,11 +7,12 @@ export const SearchItem = ({ item, className = "", onClick }) => {
             className={`${className}`}
             onClick={onClick}
         >
-            <IconPng name={item.icon} alt={item.name} />
-            {item.name}
-            <div className='rbox'>
-                {item.success_rate}%
-            </div>
+            <IconPng name={item.icon} alt={item.item_name} />
+            {item.item_name}
+            {item.variants_count > 1 &&
+                <div className='rbox'>
+                    {item.success_rate}%
+                </div>}
 
         </div>
     );
@@ -35,8 +36,8 @@ export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
 
     return (
         <div className={`schedule_item ${className}`}        >
-            <IconPng name={item.icon} alt={item.name} />
-            {item.name},{item.success_rate}%
+            <IconPng name={item.icon} alt={item.item_name} />
+            {item.item_name},{item.success_rate}%
 
             {/* <div                className="ed flex_row_right_center"            > */}
             <input
@@ -44,15 +45,15 @@ export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
                 value={item.count}
                 onChange={handleCount}
                 min={1}
-                style={{ width: "70px", position: "absolute", right: "40px", }}
+                style={{ position: "absolute", right: "40px", }}
 
             />
             <button className='red_cross'
                 onClick={handleDelete}
                 style={{
                     right: "5px",
-                    border: "1px solid blue",
-                    position: "absolute"
+                    // border: "1px solid blue",
+                   
                 }}
                 title="Стереть"
             >

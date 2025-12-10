@@ -13,6 +13,30 @@ body {
   /* Убираем скролл у всей страницы, чтобы скроллили только дивы */
 }
 
+.la {
+  text-align: left;
+}
+
+.ra {
+  text-align: right;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #828cc4;
+}
+
+td.pad, th.pad {
+  padding: 0px 5px;
+}
+
+td.padl, th.padl {
+  padding-left: 5px;
+}
+
 #root {
   width: 100%;
   height: 100%;
@@ -27,30 +51,22 @@ body {
 
 .container {
   display: grid;
-  grid-template-columns: 350px 1fr 50px 1fr;
-  grid-template-rows: 40px 40px 3fr 5fr;
+  grid-template-columns: 350px 1fr 1fr;
+  grid-template-rows: 40px 3fr 5fr;
   gap: 25px 25px;
   /* grid-auto-flow: row; */
   width: 100%;
   height: 100%;
   grid-template-areas:
-    "item_search item_search . inventory_show"
-    "type_selector grade_selector . inventory_import"
-    "search_list search_list search_list history_list"
-    "current_schedule solution solution solution";
+    "item_search item_search inventory_show"
+    "search_list search_list history_list"
+    "schedule_list solution_lack solution_craft";
 }
 
 .item_search {
   grid-area: item_search;
 }
 
-.type_selector {
-  grid-area: type_selector;
-}
-
-.grade_selector {
-  grid-area: grade_selector;
-}
 
 .search_list {
   grid-area: search_list;
@@ -60,28 +76,29 @@ body {
   grid-area: history_list;
 }
 
-.current_schedule {
-  grid-area: current_schedule;
+.schedule_list {
+  grid-area: schedule_list;
 }
 
-.solution {
-  grid-area: solution;
+.solution_lack {
+  grid-area: solution_lack;
 }
 
-.inventory_import {
-  grid-area: inventory_import;
-  background-color: blanchedalmond;
+.solution_craft {
+  grid-area: solution_craft;
 }
 
 .inventory_show {
   grid-area: inventory_show;
+  background: #e4e8ff;
+  cursor: pointer;
 }
 
 
 .search_list,
 .history_list,
-.current_schedule,
-.solution {
+.schedule_list,
+.solution_lack, .solution_craft {
   border: 1px dotted rgba(7, 85, 201, 0.35);
   overflow: auto;
   min-height: 0;
@@ -127,8 +144,8 @@ img {
 }
 
 .rbox {
-   position: absolute;
-   right: 10px;
+  position: absolute;
+  right: 10px;
 }
 
 .schedule_item .ed {
@@ -146,21 +163,6 @@ img {
   text-overflow: ellipsis;
 }
 
-.search_item img {
+.search_item img, .schedule_item img {
   margin-right: 5px;
-}
-
-
-
-
-
-
-button.red_cross {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  color: red;
-  font-size: 20px;
-  width: 30px;
 }
