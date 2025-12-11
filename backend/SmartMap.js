@@ -28,3 +28,28 @@ export const createSmartDict = (initialData = {}) => {
         }
     });
 };
+
+
+export const createSmartDict2 = (initialData = {}) => {
+    return new Proxy({ ...initialData }, {
+        
+        // ПЕРЕХВАТ ЧТЕНИЯ (GET)
+        get(target, prop) {
+            // 1. Пропускаем системные вызовы
+            // React и JS часто проверяют 'toJSON', 'toString', 'then' (для промисов) или итераторы.
+            // Если вернуть им 0, приложение может упасть.
+            if (typeof prop === 'symbol' || prop === 'toJSON' || prop === 'then') {
+                return Reflect.get(target, prop);
+            }
+
+            // 2. Главная магия
+            // Если ключ есть — отдаем значение.
+            // Если ключа нет — отдаем 0 (вместо undefined).
+            return (prop in target) ? target[prop] : 0;
+        }
+        
+        // SET убрали намеренно!
+        // Теперь можно писать: dict[id] -= 100
+        // И если было 0, станет -100 (наш Lack). И ключ сохранится.
+    });
+};

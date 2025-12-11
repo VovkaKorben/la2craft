@@ -83,6 +83,6 @@ export async function openDb(debug = false) {
             return result;
         };
     });
-
+    return db;
 
 }
