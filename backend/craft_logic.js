@@ -57,21 +57,29 @@ const item_name = async (db, id) => {
 
 }
 
+const recipe_name = async (db, id_mk) => {
+  const i = await db.get(`SELECT 	i.name FROM	recipes r,	items i WHERE i.id = r.id_item and	id_mk = ?`, id_mk);
+  return `recipe_name: ${i.name}`;
+
+}
+
 const process_craft = async (params, id_mk, count) => {
   try {
 
     // check recipe in cache
     if (!(id_mk in params.cache)) {
       // read recipe from DB
-      params.cache[id_mk] = {};
-      const data = await params.db.all(`SELECT material_id,material_count FROM materials WHERE id_mk=?`, id_mk);
-      data.forEach((material) => {
-        params.cache[id_mk][material.material_id] = material.material_count;
+      const rdata = await params.db.get(`SELECT count as output  FROM recipes WHERE id_mk=?`, id_mk);
+      params.cache[id_mk] = { output: rdata.output, input: {} };
+      const mdata = await params.db.all(`SELECT material_id,material_count FROM materials WHERE id_mk=?`, id_mk);
+      mdata.forEach((material) => {
+        params.cache[id_mk].input[material.material_id] = material.material_count;
       });
     }
 
+    console.log(await recipe_name(params.db, id_mk));
     // for each material try obtain recipe
-    const materials = Object.keys(params.cache[id_mk]);
+    const materials = Object.keys(params.cache[id_mk].input);
     const placeholders = materials.map(() => '?').join(',');
     const sub_materials = await params.db.all(`
       select i.id as item_id, i.name as item_name, i.icon,  r.id_mk,r.price from items i
@@ -81,7 +89,7 @@ const process_craft = async (params, id_mk, count) => {
     // console.log(stringifyWithDepthLimit(sub_materials, 1));
 
     // if material has recipe - call self again
-    for (const sub of sub_materials) {
+    for (const sub of  sub_materials) {
 
       const sub_count = count * params.cache[id_mk][sub.item_id];
       if (sub.id_mk) {
@@ -134,7 +142,7 @@ const process_craft = async (params, id_mk, count) => {
 export const craft_init = async (data) => {
   const params = {
     cache: {},
-    db: await openDb(),
+    db: await openDb( ),
     level: 0,
     inventory: createSmartDict(data.inventory), // production => replace true with use_inventory
     lack: {},
@@ -176,5 +184,47 @@ export const craft_init = async (data) => {
 
 
 }
+const data = {
 
-//init(xxx);
+
+  schedule: {
+    "104": {
+      "item_id": 398,
+      "item_name": "Plated Leather",
+      "icon": "armor_t47_u_i00",
+      "success_rate": 100,
+      "id_mk": 104,
+      "variants_count": 1,
+      "count": 1
+    },
+    "105": {
+      "item_id": 418,
+      "item_name": "Plated Leather Gaiters",
+      "icon": "armor_t47_l_i00",
+      "success_rate": 100,
+      "id_mk": 105,
+      "variants_count": 1,
+      "count": 1
+    },
+    "283": {
+      "item_id": 2431,
+      "item_name": "Plated Leather Boots",
+      "icon": "armor_t47_b_i00",
+      "success_rate": 100,
+      "id_mk": 283,
+      "variants_count": 1,
+      "count": 1
+    },
+    "290": {
+      "item_id": 2455,
+      "item_name": "Plated Leather Gloves",
+      "icon": "armor_t47_g_i00",
+      "success_rate": 100,
+      "id_mk": 290,
+      "variants_count": 1,
+      "count": 1
+    }
+  }
+}
+
+console.log(await craft_init(data));
