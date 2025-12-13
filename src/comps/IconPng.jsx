@@ -1,12 +1,12 @@
-export const IconPng = ({ name, size = 32, className, ...props }) => {
-    const src = `./icon/${name}.png`;
+export const IconPng = ({ icon, ...props }) => {
+    const src = `./icon/${icon}.png`;
 
     return (
         <img
             src={src}
-            alt={name}
-            className={className}
-            style={{ width: size, height: size, objectFit: 'contain' }}
+            alt={icon}
+            className="iconpng"
+             style={{  borderRadius: "3px" }}
             {...props}
         />
     );

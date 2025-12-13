@@ -1,3 +1,4 @@
+export const API_BASE_URL = 'http://localhost:3500/api/';
 export const loadArrayFromLS = (key, expectedLength) => {
     try {
         const savedString = localStorage.getItem(key);
@@ -38,3 +39,7 @@ export const loadDataFromLS = (key, defaultValue) => {
         return defaultValue;
     }
 };
+
+export function isObject(obj) {
+    return typeof x === 'object' && !Array.isArray(x) && x !== null;
+}

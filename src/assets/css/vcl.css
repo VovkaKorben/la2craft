@@ -1,44 +1,26 @@
 input,
 textarea {
     outline: none;
-}
-
-input[type="text"] {
-      border: 2px solid #828cc4;
-}
-
-input[type="number"] {
-    padding: 5px 3px;
-    width: 50px;
-    text-align: right;
-    border: 2px solid #828cc400;
-}
-
-input[type="number"]:hover {
-    border-color: #828cc4;
-    transition: border-color 300ms ease;
-}
-
-
-input[type="number"],
-input[type="text"] {
-
-
-    border-radius: 8px;
+    border: 1px solid #9E2C2C;
 }
 
 input[type="text"] {
     width: 100%;
-    height: 100%;
-    padding: 10px;
-
-
+    padding: 5px;
 }
+
+input[type="number"] {
+    padding: 3px 3px;
+    width: 50px;
+    text-align: right;
+}
+
+
+
 
 input[type="text"]:focus,
 input[type="number"]:focus {
-    border-color: #2f3d8f;
-    transition: border-color 300ms ease;
+    border: 1px solid #a41e1e;
 }
 
 
@@ -47,36 +29,79 @@ textarea {
     resize: none;
 }
 
-button.red_cross {
-    /* width: 100px; */
-    height: 50px;
-    border: none;
-    background: transparent;
-    position: absolute;
-    cursor: pointer;
-    font-weight: bold;
-    color: red;
-    font-size: 20px;
-    width: 30px;
-    opacity: 0.2;
-}
 
-
-
-
-
-button.red_cross:hover {
-    opacity: 1.0;
-    transition: opacity 300ms ease;
-}
 
 button.normal {
     width: 100px;
     height: 50px;
     border: none;
-    background-color: #e4e8ff;
+    background-color: #1e4863;
+    color: white;
 }
 
 button.normal:hover {
-    background-color: #c0c6ea;
+    background-color: #1c689b;
+}
+
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #154c71;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #0f3a55;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-corner {
+    background: #154c71;
+    /* Цвет твоего track */
+}
+
+/* CHECKBOX  */
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.hidden-input {
+    display: none;
+}
+
+.custom-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #ccc;
+    /* border-radius: 4px; */
+    position: relative;
+    transition: all 0.2s;
+}
+
+.hidden-input:checked+.custom-box {
+    background-color: #0f3a55;
+    border-color: white;
+}
+
+.custom-box::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: all 0.2s;
+}
+
+.hidden-input:checked+.custom-box::after {
+    transform: rotate(45deg) scale(1);
 }

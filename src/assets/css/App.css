@@ -1,17 +1,54 @@
+.bc1 {
+
+  background-color: #154c71;
+}
+
+.bc2 {
+
+  background-color: #1e4863;
+}
+
+.bc3 {
+  background-color: #0f3a55;
+}
+
+.oc3 {
+  border: 1px solid #0f3a55;
+}
+
+body
+
+/* td, th  */
+  {
+  color: white;
+}
+
+a {
+  color: #f3b831;
+  text-decoration: none;
+}
+
+a:hover {
+
+  text-decoration: underline;
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
 }
 
 html,
 body {
   height: 100%;
-  /* Растягиваем страницу на весь вьюпорт */
-  margin: 0;
+
   overflow: hidden;
-  /* Убираем скролл у всей страницы, чтобы скроллили только дивы */
 }
+
+
 
 .la {
   text-align: left;
@@ -21,20 +58,41 @@ body {
   text-align: right;
 }
 
+.nw {
+  white-space: nowrap;
+}
+
 table {
   border-collapse: collapse;
+  width: 90%;
 }
 
 td, th {
   border: 1px solid #828cc4;
 }
 
-td.pad, th.pad {
+.pad, .pad {
   padding: 0px 5px;
 }
 
-td.padl, th.padl {
+.padl, .padl {
   padding-left: 5px;
+}
+
+.padr {
+  padding-right: 5px;
+}
+
+.padi {
+  padding: 20px;
+}
+
+.cptr {
+  cursor: pointer;
+}
+
+.icon_holder {
+  width: 32px;
 }
 
 #root {
@@ -44,32 +102,49 @@ td.padl, th.padl {
   font-size: 12px;
 
   padding: 10px;
-  margin: 0px;
-  /* display: flex;  justify-content: center;  align-items: center; */
+  /* margin: 10px; */
 
 }
 
 .container {
   display: grid;
-  grid-template-columns: 350px 1fr 1fr;
-  grid-template-rows: 40px 3fr 5fr;
-  gap: 25px 25px;
-  /* grid-auto-flow: row; */
+  grid-template-rows: 60px 60px 3fr 5fr;
+  grid-template-columns: 450px 1fr 1fr 40px;
+
+  gap: 5px 5px;
   width: 100%;
   height: 100%;
   grid-template-areas:
-    "item_search item_search inventory_show"
-    "search_list search_list history_list"
-    "schedule_list solution_lack solution_craft";
+    "item_search site_logo inventory_show drawer_show"
+    "search_list solution_options solution_options solution_options"
+    "search_list solution_lack solution_craft solution_craft"
+    "schedule_list solution_lack solution_craft solution_craft";
 }
 
-.item_search {
-  grid-area: item_search;
+.drawer_show {
+  grid-area: drawer_show;
+  background-image: url("/ui/setting.svg");
+  background-size: 40px;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
+.site_logo {
+  grid-area: site_logo;
+  background-image: url("/img/logo2.png");
+  /* background-size: 40px; */
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.solution_options {
+  grid-area: solution_options;
+
+}
 
 .search_list {
   grid-area: search_list;
+
 }
 
 .history_list {
@@ -90,36 +165,52 @@ td.padl, th.padl {
 
 .inventory_show {
   grid-area: inventory_show;
-  background: #e4e8ff;
-  cursor: pointer;
+
+
 }
 
+.div_border {
+  border: 2px dashed #1c689b;
+}
 
-.search_list,
-.history_list,
-.schedule_list,
-.solution_lack, .solution_craft {
-  border: 1px dotted rgba(7, 85, 201, 0.35);
+.div_scrollable {
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
   overflow: auto;
   min-height: 0;
   min-width: 0;
 }
 
-
-
-.button-selector>div {
-
-  width: 32px;
-  height: 32px;
+.div_header {
+  padding: 10px;
+  font-weight: bold;
+  flex-shrink: 0;
 }
 
-.button-selector>div:hover {
-  outline: 1px solid red;
-  /* Загоняем его внутрь */
-  outline-offset: -1px;
+.div_scroll_area {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 
-  /* box-shadow: inset 0 0 0 3px blue; */
+  align-items: center;
 }
+
+
+
+.item_search {
+  grid-area: item_search;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 
 .transp {
   opacity: 0.2;
@@ -129,40 +220,86 @@ img {
   vertical-align: top;
 }
 
+.search_item {
+  cursor: pointer;
+}
+
 .search_item,
 .schedule_item {
   padding: 2px;
-  margin: 1px;
-  background: #e4e8ff;
+  margin: 0px 1px 1px 0px;
+  /* background: #e4e8ff; */
   white-space: nowrap;
   overflow: hidden;
   position: relative;
-  width: 300px;
+  width: 400px;
   height: 36px;
+  color: white;
   /* height: 56px; */
-  /* border-radius: 0px 20px 20px 0px; */
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 
-.rbox {
-  position: absolute;
-  right: 10px;
+
+.dimmed {
+  color: rgba(255, 255, 255, 0.233)
 }
 
-.schedule_item .ed {
-  border: 1px solid red;
+.schedule_rbox {
   position: absolute;
   right: 0px;
+  /* border: 5px solid red; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.search_item {
 
 
+
+.iconpng {
+  width: 32px;
+  height: 32px;
+}
+
+.large_text {
+  font-size: 50px;
+  font-weight: bold;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  padding: 20px;
+  color: #1c689b55;
+}
+
+.red_cross {
+  /* width: 100px; */
+  /* height: 50px; */
+  border: none;
+  background: transparent;
+  /* position: absolute; */
   cursor: pointer;
-
-  /* 3. Рисуем троеточие */
-  text-overflow: ellipsis;
+  font-weight: bold;
+  color: rgba(134, 134, 134, 0.189);
+  font-size: 20px;
+  width: 30px;
+  /* opacity: 0.2; */
+  transition: color 300ms ease;
 }
 
-.search_item img, .schedule_item img {
-  margin-right: 5px;
+
+
+
+
+.red_cross:hover {
+  /* opacity: 1.0; */
+  color: red;
+}
+
+code {
+  /* color: red; */
+  /* border: 1px solid; */
+  font-style: italic;
 }

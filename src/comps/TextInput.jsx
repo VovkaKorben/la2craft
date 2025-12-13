@@ -33,7 +33,7 @@ const TextInput = ({
     };
 
     return (
-        <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
+        // <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
             <input
                 ref={inputRef}
                 type="text"
@@ -41,9 +41,9 @@ const TextInput = ({
                 onChange={handleInputChange}
                 placeholder={placeholder}
 
-            />
+            />   );
 
-            {value && (
+            {/* {value && (
                 <button className='red_cross'
                     onClick={handleClear}
                     style={{
@@ -56,9 +56,9 @@ right: "5px",
                 </button>
             )}
 
-        </div>
+   </div> */}
 
-    );
+ 
 };
 
 export default TextInput;

@@ -9,6 +9,11 @@ content-type: application/json
     "substr": "tateo"
 }
 
+### excludedids
+POST http://localhost:3500/api/excludedids HTTP/1.1
+content-type: application/json
+
+
 
 ### solution
 POST http://localhost:3500/api/solution HTTP/1.1

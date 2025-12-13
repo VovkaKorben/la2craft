@@ -7,12 +7,13 @@ export const SearchItem = ({ item, className = "", onClick }) => {
             className={`${className}`}
             onClick={onClick}
         >
-            <IconPng name={item.icon} alt={item.item_name} />
+            <IconPng
+                className="padr"
+                icon={item.icon}
+                alt={item.item_name} />
             {item.item_name}
-            {item.variants_count > 1 &&
-                <div className='rbox'>
-                    {item.success_rate}%
-                </div>}
+
+            <span className="dimmed padl">{item.success_rate}%</span>
 
         </div>
     );
@@ -32,34 +33,39 @@ export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
         if (onCount)
             onCount(item.id_mk, cleanValue);
     }
-
+//   className=" "
 
     return (
-        <div className={`schedule_item ${className}`}        >
-            <IconPng name={item.icon} alt={item.item_name} />
-            {item.item_name},{item.success_rate}%
-
-            {/* <div                className="ed flex_row_right_center"            > */}
-            <input
-                type="number"
-                value={item.count}
-                onChange={handleCount}
-                min={1}
-                style={{ position: "absolute", right: "40px", }}
-
+        <div className={`bc3 schedule_item flex_row_left_center ${className}`}        >
+            <IconPng
+                className="padr"
+                icon={item.icon}
+                alt={item.item_name}
             />
-            <button className='red_cross'
-                onClick={handleDelete}
-                style={{
-                    right: "5px",
-                    // border: "1px solid blue",
-                   
-                }}
-                title="Стереть"
-            >
-                ✕
-            </button> </div>
-        // </div>
+            {item.item_name}<span className='padl dimmed'>{item.success_rate}%</span>
+
+            <div className="schedule_rbox"            >
+                <input
+                    type="number"
+                    value={item.count}
+                    onChange={handleCount}
+                    min={1}
+                    style={{  }}
+
+                />
+                <button className='red_cross'
+                    onClick={handleDelete}
+                    style={{
+                        right: "0px",
+                        // border: "1px solid blue",
+
+                    }}
+                    title="Стереть"
+                >
+                    ✕
+                </button>
+            </div>
+        </div>
 
     );
 };

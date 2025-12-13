@@ -37,15 +37,52 @@ app.get('/api/health', async (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
+
+
+
+
+app.post('/api/excludedids', async (req, res) => {
+
+
+
+  try {
+    const db = await openDb();
+    const data = await db.all(`
+    SELECT i.name, i.icon, r.id_mk, r.price
+     FROM recipes r 
+     left JOIN items i on r.id_item = i.id
+     WHERE r.price is not null
+     order by r.level asc, i.name asc
+      `);
+
+    return res.status(200).json({
+      success: true,
+      data: data
+    });
+
+  } catch (err) {
+    console.error('error:', err);
+    res.status(500).json({
+      success: false,
+      error: err.stack
+    });
+  }
+});
+
+
+
+
 app.post('/api/search', async (req, res) => {
   const { substr, type, grade } = req.body;
 
 
   try {
-    const db = await openDb();
+    let data = [];
+    if (substr.trim() !== '') {
+      const db = await openDb();
 
-    // check user  exists
-    const data = await db.all(`
+      // check user  exists
+      data = await db.all(`
       select i.id as item_id, i.name as item_name,i.icon,r.success_rate,r.id_mk,COUNT(i.id) OVER (PARTITION BY i.id) as variants_count
       from items i,recipes r
       where r.id_item = i.id 
@@ -57,7 +94,7 @@ app.post('/api/search', async (req, res) => {
       order by INSTR('DCBAS', i.crystal_type) desc,i.name asc,r.success_rate desc;
       `, [substr]);
 
-console.log(stringifyWithDepthLimit(data,1));
+    }
 
     return res.status(200).json({
       success: true,
@@ -76,8 +113,8 @@ console.log(stringifyWithDepthLimit(data,1));
 
 
 app.post('/api/solution', async (req, res) => {
-  const { inventory, use_composite, schedule } = req.body;
-  console.log(`schedule: ${JSON.stringify(schedule)}`);
+  const { inventory, excluded, schedule } = req.body;
+  // console.log(`schedule: ${JSON.stringify(schedule)}`);
 
   try {
 
@@ -85,7 +122,7 @@ app.post('/api/solution', async (req, res) => {
     const solution = await craft_init({
       inventory: inventory,
       schedule: schedule,
-      use_composite: use_composite
+      excluded: excluded
     });
 
     return res.status(200).json({

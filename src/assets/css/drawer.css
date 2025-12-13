@@ -1,0 +1,41 @@
+.drawer {
+
+    padding: 20px;
+    position: fixed;
+    right: -330px;
+    top: 0px;
+    bottom: 0px;
+    /* border: 1px solid red; */
+    width: 330px;
+
+    transition: right 200ms ease-out;
+    /* background-color: #e4e8ff; */
+    z-index: 500;
+    text-align: center;
+}
+
+.opened_drawer {
+    right: 0px;
+
+
+}
+.drawerlist,
+.drawerhint
+{
+    margin-top: 10px;
+}
+
+
+.drawerhint {
+    height: 50px;
+    white-space: pre-wrap;
+}
+
+
+.drawer>* {
+    /* border: 1px solid red; */
+}
+
+.op {
+    opacity: 0.2;
+}

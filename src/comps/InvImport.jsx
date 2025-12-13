@@ -120,32 +120,68 @@ const InvImport = ({
                 onClick={handleCancel}
             ></div>
 
-            <div className="win_content">
+            <div className="bc3 win_content">
 
-                <div className="win_part">
-                    1. Download Adrenaline bot script here <a
+                <div className="div_border padi">
+                    1. Download script for Adrenaline-bot here <a
                         target="_blank"            // <-- Исправлено (было _target)
                         rel="noopener noreferrer"  // <-- Безопасность
                         download                   // <-- Магия: браузер предложит сохранить файл
                         href="./adrenaline/get_inventory.txt">get_inventory.txt</a>
                 </div>
 
-                <div className=" win_part">
-                    2. Run script, then its done - you will find a text file <b>inventory_result.txt</b> next to script.
+                <div className="div_border padi">
+                    2. Run script, then its done - you will find a text file <code>inventory_result.txt</code> next to script.
                 </div>
 
-                <div className="flex_row_center_stretch">
-                    <div className="win_part ">
-                        3a. Open the file <b>inventory_result.txt</b>, copy its contents, and put it in this field<br />
+                {/* HOLDER */}
+                <div
+                    style={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "row", // В ряд
+                        gap: "10px"
+                    }}
+                >
+
+                    {/* LEFT */}
+                    <div
+                        className="div_border padi"
+                        style={{
+                            flex: 1,        // Расти
+                            minWidth: 0,    // <--- !!! ВОТ ОНО. Разрешаем сжиматься, если тесно.
+                            // width: 0,    // <--- УДАЛЯЕМ ЭТО, оно ломало
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center"
+                        }}
+
+                    >
+                        3a. Open the file <code>inventory_result.txt</code>, copy its contents, and paste it in this field<br />
                         <textarea
                             value={importText}
                             onChange={(e) => setImportText(e.target.value)}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                resize: "none",
+                                minHeight: "60px"
+                            }}
                         />
                     </div>
 
+
+                    {/* CENTER */}
                     <div
-                        className="flex_row_center_center"
-                        style={{ fontSize: "50px" }}>
+                        className="large_text"
+                        style={{
+                            flex: "0 0 100px", // Жестко 100px
+                            width: "100px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
                         OR
                     </div>
 
@@ -157,8 +193,18 @@ const InvImport = ({
                         onDragLeave={handleDragLeave}
                         onMouseEnter={() => setDraggedOver(true)}
                         onMouseLeave={() => setDraggedOver(false)}
-                        style={{ cursor: 'pointer' }}
-                        className={`flex_row_center_center win_part ${draggedOver ? "drag_over" : ""}`}
+                        style={{
+                            flex: 1,        // Расти так же, как левый
+                            minWidth: 0,    // <--- !!! СИММЕТРИЯ
+                            // width: 0,    // <--- УДАЛЯЕМ
+                            cursor: 'pointer',
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            textAlign: "center"
+                        }}
+                        className={`padi flex_c  div_border ${draggedOver ? "drag_over" : ""}`}
+
                     >
                         3b. Click here to specify file (you can just drop it here)
                         <input
@@ -183,15 +229,17 @@ const InvImport = ({
                 <div>
                     <button
                         onClick={handleOK}
+                        className="normal"
                         style={{ marginRight: "10px" }}>OK</button>
                     <button
                         onClick={handleCancel}
+                        className="normal"
                     >
                         Cancel
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
 
 
     );
