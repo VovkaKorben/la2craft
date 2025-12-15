@@ -11,7 +11,7 @@
     top: 0px;
     bottom: 0px;
     background-color: #154c71bb;
-
+    /* z-index: 10040; */
 }
 
 .win_content {
@@ -37,6 +37,7 @@
     /* padding: 10px; */
     /* width: 100%; */
     /* margin: 10px; */
+    /* z-index: 10050; */
 }
 
 

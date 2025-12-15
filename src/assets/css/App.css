@@ -1,3 +1,15 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+  scrollbar-width: thin;
+  /* Делаем скроллбар узким */
+  scrollbar-color: #0f3a55 transparent;
+  /* Цвет ползунка и фона */
+}
+
 .bc1 {
 
   background-color: #154c71;
@@ -33,13 +45,6 @@ a:hover {
   text-decoration: underline;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0px;
-  padding: 0px;
-}
 
 html,
 body {
@@ -65,10 +70,16 @@ body {
 table {
   border-collapse: collapse;
   width: 90%;
+  margin-bottom: 10px;
+}
+
+tr, td, th {
+  height: 32px;
 }
 
 td, th {
-  border: 1px solid #828cc4;
+  border: 1px solid #ffffff23;
+
 }
 
 .pad, .pad {
@@ -87,7 +98,7 @@ td, th {
   padding: 20px;
 }
 
-.cptr {
+.curptr {
   cursor: pointer;
 }
 
@@ -131,10 +142,7 @@ td, th {
 
 .site_logo {
   grid-area: site_logo;
-  background-image: url("/img/logo2.png");
-  /* background-size: 40px; */
-  background-position: center;
-  background-repeat: no-repeat;
+  /* background-image: url("/img/logo2.png");  background-position: center;  background-repeat: no-repeat; */
 }
 
 .solution_options {
@@ -177,18 +185,36 @@ td, th {
   display: flex;
   flex-direction: column;
 
-  overflow: hidden;
+  /* overflow: hidden; */
   height: 100%;
   width: 100%;
-  overflow: auto;
+  /* overflow: auto; */
   min-height: 0;
   min-width: 0;
 }
 
 .div_header {
-  padding: 10px;
+  /* padding: 10px; */
+  padding-left: 10px;
+
+  height: 40px;
+  /* flex-shrink: 0; */
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: visible !important;
+  position: relative;
+  /* z-index: 50; */
+  /* border: 1px solid yellow; */
+}
+
+.div_header span {
   font-weight: bold;
-  flex-shrink: 0;
+}
+
+.div_header>* {
+  /* border: 1px solid greenyellow; */
 }
 
 .div_scroll_area {
@@ -245,6 +271,15 @@ img {
   color: rgba(255, 255, 255, 0.233)
 }
 
+img.dimmed {
+  opacity: 0.2;
+}
+
+img.dimmed:hover {
+  opacity: 1.0;
+  transition: opacity 200ms ease-in-out;
+}
+
 .schedule_rbox {
   position: absolute;
   right: 0px;
@@ -263,15 +298,25 @@ img {
 }
 
 .large_text {
-  font-size: 50px;
-  font-weight: bold;
+  /* Размеры */
+  width: 100%;
   height: 100%;
+  /* 👇 Самое важное: скажи ему занять всё место явно */
+  /* flex: 1;  <-- Тоже можно, но height: 100% надежнее для единственного ребенка */
+
+  /* Центровка */
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /* Красота */
+  font-size: 50px;
+  font-weight: bold;
   text-transform: uppercase;
-  padding: 20px;
   color: #1c689b55;
+  padding: 20px;
+  text-align: center;
+  /* На случай, если текст перенесется на 2 строки */
 }
 
 .red_cross {

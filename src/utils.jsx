@@ -1,4 +1,7 @@
-export const API_BASE_URL = 'http://localhost:3500/api/';
+// export const API_BASE_URL = 'http://localhost:3500/api/';
+
+export const API_BASE_URL = import.meta.env.DEV   ? 'http://localhost:3500/api/'   : '/craft/api/';
+
 export const loadArrayFromLS = (key, expectedLength) => {
     try {
         const savedString = localStorage.getItem(key);

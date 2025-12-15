@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import './assets/css/App.css';
 import './assets/css/flex.css';
 import './assets/css/import.css';
 import './assets/css/vcl.css';
 import './assets/css/drawer.css';
+import './assets/css/tooltip.css';
 import TextInput from './comps/TextInput.jsx';
 // import ButtonSelector from './comps/ButtonSelector.jsx';
 import { API_BASE_URL, loadArrayFromLS, loadDataFromLS, isObject } from './utils.jsx';
@@ -56,6 +57,32 @@ function App() {
 
 
     // schedule work -------------------------------------------
+    // add to schedule
+    const searchItemClick = (item) => {
+
+
+
+        setSchedule((prev) => {
+            const existingItem = prev[item.id_mk];
+
+            if (existingItem) {
+                return {
+                    ...prev,
+                    [item.id_mk]: {
+                        ...existingItem,
+                        count: existingItem.count + 1
+                    }
+                };
+            }
+
+            const unsorted_schedule = {
+                ...prev,
+                [item.id_mk]: { ...item, count: 1 }
+            };
+            return unsorted_schedule
+
+        });
+    };
     const [schedule, setSchedule] = useState(() => {
         const saved = localStorage.getItem('schedule');
         return saved ? JSON.parse(saved) : {};
@@ -82,10 +109,26 @@ function App() {
             return newSchedule;              // Возвращаем обновленный объект
         });
     };
+    // clear schedule flag and handler
     const [scheduleClearVisible, setScheduleClearVisible] = useState(false);
     const scheduleClearAll = () => {
         setSchedule({}); // Просто обнуляем объект
     };
+
+
+    // schedule sort for render
+
+    const sortedSchedule = useMemo(() => {
+        // 1. Превращаем словарь в массив
+        return Object.values(schedule).sort((a, b) => {
+            // 2. Сортируем
+            // Если sort_order вдруг нет (undefined), ставим 999999, чтобы улетел в конец
+            const orderA = a.sort_order !== undefined ? a.sort_order : 999999;
+            const orderB = b.sort_order !== undefined ? b.sort_order : 999999;
+
+            return orderA - orderB; // От меньшего к большему
+        });
+    }, [schedule]); // Пересчитываем только если изменился сам schedule
 
     // drawer -------------------------------------------
     const [excludeState, setExcludeState] = useState(() => loadDataFromLS('excludeState', []));
@@ -132,36 +175,12 @@ function App() {
     }, [itemSearch]);
     const itemSearchChanged = (value) => { setItemSearch(value); }
 
-    // search results -------------------------------------------
-    const searchItemClick = (item) => {
 
-
-
-        setSchedule((prev) => {
-            const existingItem = prev[item.id_mk];
-
-            if (existingItem) {
-                return {
-                    ...prev,
-                    [item.id_mk]: {
-                        ...existingItem,
-                        count: existingItem.count + 1
-                    }
-                };
-            }
-
-            return {
-                ...prev,
-                [item.id_mk]: { ...item, count: 1 }
-            };
-
-        });
-    };
 
     // solution update -------------------------------------------
     const [solution, setSolution] = useState(null);
     const SolutionLack = ({ data }) => {
-        if (!data.length) return (<span className='large_text'>Nothing to show</span>);
+        if (!data.length) return (<div className='large_text'>Nothing to show</div>);
 
 
 
@@ -174,16 +193,24 @@ function App() {
                     <td className='pad ra nw'>{item.count.toLocaleString()}</td>
                 </tr>);
         });
-
-
-
-
-
-
         return (<>
 
             <div className="div_header" >
-                Lack table
+                <span>Lack table</span>
+
+                <div className="tooltip-container">
+                    <img
+                        src="./ui/info.svg"
+                        alt="info"
+                        className='icon-fix dimmed curptr'
+                    />
+                    <div className="tooltip">This table contains a list of missing resources.<br />If the Use inventory checkbox is enabled,<br />then this is taken into account in the table.</div>
+                </div>
+
+
+
+
+
             </div>
 
             <div className="div_scroll_area">
@@ -195,7 +222,7 @@ function App() {
 
     }
     const SolutionCraft = ({ data }) => {
-        if (!data.length) return (<span className='large_text'>Nothing to show</span>);
+        if (!data.length) return (<div className='large_text'>Nothing to show</div>);
         const rows = [];
         // hdr
         rows.push(
@@ -203,7 +230,7 @@ function App() {
                 <th></th>
                 <th className='padl la'>Recipe</th>
                 <th className='pad ra'>Hits</th>
-                <th className='pad ra'>Craft</th>
+                <th className='pad ra'>Count</th>
                 <th className='pad ra'>Sum</th>
             </tr>);
 
@@ -229,17 +256,23 @@ function App() {
         // footer
         rows.push(
             <tr key="craft-footer">
-                <th colSpan={3} className='pad ra'>Total</th>
+                <th colSpan={4} className='pad ra'>Total sum</th>
 
                 <th className='pad ra'>{(totalSum || "").toLocaleString()}</th>
             </tr>);
 
         return (<>
-
             <div className="div_header" >
-                Craft steps
+                <span>Craft steps</span>
+                <div className="tooltip-container">
+                    <img
+                        src="./ui/info.svg"
+                        alt="info"
+                        className='icon-fix dimmed curptr'
+                    />
+                    <div className="tooltip">Craft resources sequentially,<br />from top to bottom of the list.</div>
+                </div>
             </div>
-
             <div className="div_scroll_area">
                 <table><tbody>{rows}</tbody></table>
             </div>
@@ -287,7 +320,12 @@ function App() {
     return (
         <>
 
-            <div className="container"> <div className="site_logo">  </div>
+            <div className="container">
+
+                <div className="site_logo flex_c" >
+                    <a href="https://l2cat.net/" target="_blank"> <img src="./img/logo2.png" alt="" /></a>
+                </div>
+
                 <div className="item_search">
                     <TextInput
                         onChange={itemSearchChanged}
@@ -299,7 +337,8 @@ function App() {
 
                 <div className="search_list div_scrollable div_border">
                     <div className="div_header" >
-                        Search result
+                        Search result:
+                        <span className='padl dimmed'>{searchList.length} item(s)</span>
                     </div>
                     <div className="div_scroll_area">
                         {searchList.map((item) => (
@@ -334,7 +373,7 @@ function App() {
                     onMouseLeave={() => setScheduleClearVisible(false)}
                 >
                     <div className="div_header" >
-                        Current schedule
+                        Current schedule:
                         {scheduleClearVisible &&
                             <span
                                 style={{ cursor: "pointer" }}
@@ -346,16 +385,18 @@ function App() {
                         }
                     </div>
                     <div className="div_scroll_area">
-                        {Object.values(schedule).map((item) => (
+
+
+                        {sortedSchedule.map((item) => (
                             <ScheduleItem
                                 key={item.id_mk}
                                 item={item}
-
                                 onCount={scheduleItemCount}
                                 onDelete={scheduleItemDelete}
                             />
-
                         ))}
+
+
                     </div>
                 </div>
                 <div className="solution_lack div_border div_scrollable">
@@ -367,7 +408,7 @@ function App() {
 
 
 
-                <div className="cptr div_border flex_row_center_center"
+                <div className="curptr div_border flex_row_center_center"
                     onClick={() => setInventoryImporting(true)}
                 >
                     <IconPng
@@ -379,7 +420,7 @@ function App() {
                 <div
                     onMouseMove={() => handleDrawerOpen(true)}
                     className="drawer_show"></div>
-            </div>
+            </div >
 
             <Drawer
                 isOpen={isDrawerOpen}

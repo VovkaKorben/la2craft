@@ -7,11 +7,9 @@ export const SearchItem = ({ item, className = "", onClick }) => {
             className={`${className}`}
             onClick={onClick}
         >
-            <IconPng
-                className="padr"
-                icon={item.icon}
-                alt={item.item_name} />
+            <IconPng className="padr" icon={item.icon} alt={item.item_name} />
             {item.item_name}
+           
 
             <span className="dimmed padl">{item.success_rate}%</span>
 
@@ -33,7 +31,7 @@ export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
         if (onCount)
             onCount(item.id_mk, cleanValue);
     }
-//   className=" "
+    //   className=" "
 
     return (
         <div className={`bc3 schedule_item flex_row_left_center ${className}`}        >
@@ -50,7 +48,7 @@ export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
                     value={item.count}
                     onChange={handleCount}
                     min={1}
-                    style={{  }}
+                    style={{}}
 
                 />
                 <button className='red_cross'

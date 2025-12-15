@@ -1,0 +1,73 @@
+.icon-fix {
+    width: 22px;
+    height: 22px;
+    display: block;
+    /* Убирает лишние отступы снизу, свойственные инлайн-элементам */
+}
+
+.tooltip-container {
+    position: relative;
+    /* Чтобы всплывашка позиционировалась относительно иконки */
+    display: flex;
+    /* Чтобы обертка не ломала высоту */
+}
+
+/* Сам блок подсказки */
+.tooltip {
+    visibility: hidden;
+    /* Скрыта, пока ты не наведешь мышку */
+    opacity: 0;
+    /* Прозрачна */
+
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    margin-top: 10px;
+    background-color: #0f3a55;
+    color: #ffffff;
+
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    /* Мягкие углы */
+    border: 1px solid #154c71;
+    /* Еле заметная обводка */
+
+    white-space: nowrap;
+    /* Текст в одну строку, не переносится */
+    z-index: 5000;
+    /* Всплывает ПОВЕРХ всего остального */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    /* Глубокая тень */
+
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    /* Плавность */
+    pointer-events: none;
+    /* Чтобы курсор не "залипал" на самой подсказке */
+}
+
+/* Логика появления (когда наводим на контейнер) */
+.tooltip-container:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    /* Фиксируем положение */
+}
+
+/* Декоративная стрелочка сверху (указывает на иконку) */
+.tooltip::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    /* Приклеиваем к верхней грани тултипа */
+    left: 50%;
+    margin-left: -6px;
+    /* Половина ширины стрелки */
+
+    border-width: 6px;
+    border-style: solid;
+    /* Прозрачный со всех сторон, кроме низа -> получается треугольник вверх */
+    border-color: transparent transparent #0f3a55 transparent;
+}

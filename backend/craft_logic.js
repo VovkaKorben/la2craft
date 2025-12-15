@@ -1,37 +1,20 @@
 import dotenv from 'dotenv';
-
-
-
-import { stringifyWithDepthLimit } from '../src/debug.js';
 import { createSmartDict2 } from './SmartMap.js';
 import { openDb } from './dbUtils.js';
 
 dotenv.config();
 
-const CONSOLE = false;
+
 
 const { SQLITE_DB } = process.env;
 
-if (CONSOLE) {
-    const item_name = async (db, id) => {
-        const i = await db.get(`SELECT name FROM items WHERE id=?`, [id]);
-        return i.name;
 
-    }
-
-    const recipe_name = async (db, id_mk) => {
-        const i = await db.get(`SELECT 	i.name FROM	recipes r,	items i WHERE i.id = r.id_item and	id_mk = ?`, [id_mk]);
-        return i.name;
-
-    }
-}
 
 const process_craft = async (params, id_mk, count, level = 0) => {
     try {
 
 
-        if (CONSOLE) console.log(`-----------------------------------`);
-
+        
         // check recipe in cache
         if (!(id_mk in params.cache)) {
             // read recipe from DB
@@ -89,9 +72,6 @@ const process_craft = async (params, id_mk, count, level = 0) => {
                 })
             });
         }
-        if (CONSOLE) console.log(`to craft: ${await recipe_name(params.db, id_mk)} (${count})`);
-        if (CONSOLE) console.log(stringifyWithDepthLimit(params.cache[id_mk], 2));
-
 
 
         if (!(id_mk in params.craft)) {
@@ -114,10 +94,7 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
         const hit_count = Math.ceil(count / params.cache[id_mk].output);
         params.craft[id_mk].hits += hit_count;
-        if (CONSOLE) console.log(`hit_count: ${hit_count}`);
-
-
-
+        
 
         for (const sub of params.cache[id_mk].input) {
 
@@ -127,11 +104,9 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
 
                 const missing_qty = Math.abs(params.inventory[sub.item_id]);
-                if (CONSOLE) console.log(`\n*** missing_qty: ${stringifyWithDepthLimit(sub, 0)}\n Missing_qty:${missing_qty}`);
                 if (sub.id_mk && !params.excluded.includes(sub.id_mk)) {
 
                     const crafted = await process_craft(params, sub.id_mk, missing_qty, level + 1);
-                    if (CONSOLE) console.log(`\n+++ crafted: ${crafted}`);
                     params.inventory[sub.item_id] += crafted;
 
 
@@ -182,7 +157,6 @@ export const craft_init = async (data) => {
         }
     });
     const sorted_lack = finalLack.sort((a, b) => { return a.sort_order - b.sort_order; });
-// console.log(stringifyWithDepthLimit(sorted_lack, 1));
 
     const sorted_craft = Object.values(params.craft).sort((a, b) => { return b.level - a.level; });
     return {
@@ -190,65 +164,3 @@ export const craft_init = async (data) => {
         lack: sorted_lack
     };
 }
-
-
-/*
-const data = {
-    inventory: {},
-
-
-    schedule: {
-
-
-        "104": {
-            "item_id": 398,
-            "item_name": "Plated Leather",
-            "icon": "armor_t47_u_i00",
-            "success_rate": 100,
-            "id_mk": 104,
-            "variants_count": 1,
-            "count": 1
-        },
-        "105": {
-            "item_id": 418,
-            "item_name": "Plated Leather Gaiters",
-            "icon": "armor_t47_l_i00",
-            "success_rate": 100,
-            "id_mk": 105,
-            "variants_count": 1,
-            "count": 1
-        },
-        "283": {
-            "item_id": 2431,
-            "item_name": "Plated Leather Boots",
-            "icon": "armor_t47_b_i00",
-            "success_rate": 100,
-            "id_mk": 283,
-            "variants_count": 1,
-            "count": 1
-        },
-        "290": {
-            "item_id": 2455,
-            "item_name": "Plated Leather Gloves",
-            "icon": "armor_t47_g_i00",
-            "success_rate": 100,
-            "id_mk": 290,
-            "variants_count": 1,
-            "count": 1
-
-        }
-
-    },
-    use_composite: false,
-
-
-}
-
-
-console.log(
-    stringifyWithDepthLimit(await craft_init(data), 2)
-);
-
-
-
-*/

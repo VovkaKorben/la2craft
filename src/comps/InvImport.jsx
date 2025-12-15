@@ -157,7 +157,7 @@ const InvImport = ({
                         }}
 
                     >
-                        3a. Open the file <code>inventory_result.txt</code>, copy its contents, and paste it in this field<br />
+                        <div>3a. Open the file <i>inventory_result.txt</i>, copy its contents, and paste it in this field</div><br />
                         <textarea
                             value={importText}
                             onChange={(e) => setImportText(e.target.value)}

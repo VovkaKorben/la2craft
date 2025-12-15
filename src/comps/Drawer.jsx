@@ -75,8 +75,11 @@ export const Drawer = ({ isOpen, openChanged, state, stateChanged }) => {
 
             </ div>
             < div className='drawerhint'>{hint}</ div>
-
-
+            < div className='drawer-footer'>
+                Coded for <a href="https://l2cat.net/" target="_blank">l2cat.net</a> servers<br />
+                by Mariko ©2025<br />
+                admin at mariko dot dev
+            </ div>
 
         </ div>
     );
