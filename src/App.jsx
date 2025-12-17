@@ -15,7 +15,127 @@ import InvImport from './comps/InvImport.jsx';
 import { Drawer } from './comps/Drawer.jsx';
 
 
+const SolutionLack = ({ data }) => {
+    const aa_items = {
+        2133: 30000,
+        2134: 100000,
+        1461: 15000,
+        1462: 25000
+    }
+    let aa_total = 0;
+    if (!data.length) return (<div className='large_text'>Nothing to show</div>);
+    const rows = [];
+    data.forEach((item) => {
+        const aa_current = item.item_id in aa_items ? aa_items[item.item_id] * item.count : 0;
+        aa_total += aa_current;
+        rows.push(
+            <tr key={`lack-${item.item_id}`}>
+                <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
+                <td className='padl nw'>
+                    <a className='itemlink' href={`https://lineage.pmfun.com/item/${item.item_id}/?sort=chance`} target="_blank">
+                        {item.item_name}
+                    </a>
 
+                    {aa_current !== 0 && (
+                        <span className="dimmed padl">
+                            {aa_current.toLocaleString()} AA
+                        </span>
+                    )}
+
+                </td>
+                <td className='pad ra nw'>{item.count.toLocaleString()}</td>
+            </tr>);
+    });
+
+    if (aa_total)
+        rows.push(
+            <tr key="lack-aa" >
+                <td className='icon_holder'><IconPng icon="etc_ancient_adena_i00" alt="AA" /></td>
+                <td className='dimmed padl nw'>Ancient Adena</td>
+                <td className='dimmed pad ra nw'>{aa_total.toLocaleString()}</td>
+            </tr>);
+
+
+    return (<>
+        <div className="div_header" >
+            <span>Lack table</span>
+
+            <div className="tooltip-container">
+                <img
+                    src="./ui/info.svg"
+                    alt="info"
+                    className='icon-fix dimmed curptr'
+                />
+                <div className="tooltip">This table contains a list of missing resources.<br />If the Use inventory checkbox is enabled,<br />then this is taken into account in the table.</div>
+            </div>
+        </div>
+        <div className="div_scroll_area">
+            <table><tbody>{rows}</tbody></table>
+        </div>
+
+    </>);
+
+
+}
+const SolutionCraft = ({ data }) => {
+    if (!data.length) return (<div className='large_text'>Nothing to show</div>);
+    const rows = [];
+    // hdr
+    rows.push(
+        <tr key="craft-header">
+            <th></th>
+            <th className='padl la'>Recipe</th>
+            <th className='pad ra'>Hits</th>
+            <th className='pad ra'>Count</th>
+            <th className='pad ra'>Sum</th>
+        </tr>);
+
+    // rows
+    let totalSum = 0;
+    data.forEach((item, index) => {
+        const rowSum = item.hits * item.price || 0;
+        totalSum += rowSum;
+        // console.log(item.item_id);
+        rows.push(
+            <tr key={`craft-${index}`}>
+                <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
+                <td className='padl nw'>
+                    {item.item_name}
+                    {item.level === 0 && <span className="dimmed padl">{item.chance}%</span>}
+                </td>
+                {/* <td className='padl'>{stringifyWithDepthLimit(item, 1)}</td> */}
+                <td className='pad ra'>{item.hits.toLocaleString()}</td>
+                <td className='pad ra'>{(item.hits * item.output).toLocaleString()}</td>
+                <td className='pad ra'>{(rowSum || "").toLocaleString()}</td>
+            </tr>);
+    });
+    // footer
+    rows.push(
+        <tr key="craft-footer">
+            <th colSpan={4} className='pad ra'>Total sum</th>
+
+            <th className='pad ra'>{(totalSum || "").toLocaleString()}</th>
+        </tr>);
+
+    return (<>
+        <div className="div_header" >
+            <span>Craft steps</span>
+            <div className="tooltip-container">
+                <img
+                    src="./ui/info.svg"
+                    alt="info"
+                    className='icon-fix dimmed curptr'
+                />
+                <div className="tooltip">Craft resources sequentially,<br />from top to bottom of the list.</div>
+            </div>
+        </div>
+        <div className="div_scroll_area">
+            <table><tbody>{rows}</tbody></table>
+        </div>
+
+    </>);
+
+}
 
 function App() {
     // inventory use checkbox -------------------------------------------
@@ -179,107 +299,7 @@ function App() {
 
     // solution update -------------------------------------------
     const [solution, setSolution] = useState(null);
-    const SolutionLack = ({ data }) => {
-        if (!data.length) return (<div className='large_text'>Nothing to show</div>);
 
-
-
-        const rows = [];
-        data.forEach((item) => {
-            rows.push(
-                <tr key={`lack-${item.item_id}`}>
-                    <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
-                    <td className='padl nw'>{item.item_name}</td>
-                    <td className='pad ra nw'>{item.count.toLocaleString()}</td>
-                </tr>);
-        });
-        return (<>
-
-            <div className="div_header" >
-                <span>Lack table</span>
-
-                <div className="tooltip-container">
-                    <img
-                        src="./ui/info.svg"
-                        alt="info"
-                        className='icon-fix dimmed curptr'
-                    />
-                    <div className="tooltip">This table contains a list of missing resources.<br />If the Use inventory checkbox is enabled,<br />then this is taken into account in the table.</div>
-                </div>
-
-
-
-
-
-            </div>
-
-            <div className="div_scroll_area">
-                <table><tbody>{rows}</tbody></table>
-            </div>
-
-        </>);
-
-
-    }
-    const SolutionCraft = ({ data }) => {
-        if (!data.length) return (<div className='large_text'>Nothing to show</div>);
-        const rows = [];
-        // hdr
-        rows.push(
-            <tr key="craft-header">
-                <th></th>
-                <th className='padl la'>Recipe</th>
-                <th className='pad ra'>Hits</th>
-                <th className='pad ra'>Count</th>
-                <th className='pad ra'>Sum</th>
-            </tr>);
-
-        // rows
-        let totalSum = 0;
-        data.forEach((item, index) => {
-            const rowSum = item.hits * item.price || 0;
-            totalSum += rowSum;
-            // console.log(item.item_id);
-            rows.push(
-                <tr key={`craft-${index}`}>
-                    <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
-                    <td className='padl nw'>
-                        {item.item_name}
-                        {item.level === 0 && <span className="dimmed padl">{item.chance}%</span>}
-                    </td>
-                    {/* <td className='padl'>{stringifyWithDepthLimit(item, 1)}</td> */}
-                    <td className='pad ra'>{item.hits.toLocaleString()}</td>
-                    <td className='pad ra'>{(item.hits * item.output).toLocaleString()}</td>
-                    <td className='pad ra'>{(rowSum || "").toLocaleString()}</td>
-                </tr>);
-        });
-        // footer
-        rows.push(
-            <tr key="craft-footer">
-                <th colSpan={4} className='pad ra'>Total sum</th>
-
-                <th className='pad ra'>{(totalSum || "").toLocaleString()}</th>
-            </tr>);
-
-        return (<>
-            <div className="div_header" >
-                <span>Craft steps</span>
-                <div className="tooltip-container">
-                    <img
-                        src="./ui/info.svg"
-                        alt="info"
-                        className='icon-fix dimmed curptr'
-                    />
-                    <div className="tooltip">Craft resources sequentially,<br />from top to bottom of the list.</div>
-                </div>
-            </div>
-            <div className="div_scroll_area">
-                <table><tbody>{rows}</tbody></table>
-            </div>
-
-        </>);
-
-    }
     useEffect(() => {
         const handleCalculate = async () => {
 

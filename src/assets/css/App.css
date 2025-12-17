@@ -28,10 +28,7 @@
   border: 1px solid #0f3a55;
 }
 
-body
-
-/* td, th  */
-  {
+body {
   color: white;
 }
 
@@ -45,6 +42,15 @@ a:hover {
   text-decoration: underline;
 }
 
+a.itemlink {
+  color: white;
+  text-decoration: none;
+}
+
+a.itemlink:hover {
+  color: #f3b831;
+  text-decoration: underline;
+}
 
 html,
 body {
@@ -81,6 +87,8 @@ td, th {
   border: 1px solid #ffffff23;
 
 }
+
+
 
 .pad, .pad {
   padding: 0px 5px;
