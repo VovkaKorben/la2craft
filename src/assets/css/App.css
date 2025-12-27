@@ -90,7 +90,7 @@ td, th {
 
 
 
-.pad, .pad {
+.pad {
   padding: 0px 5px;
 }
 
@@ -112,6 +112,10 @@ td, th {
 
 .icon_holder {
   width: 32px;
+}
+
+.fntl {
+  font-size: x-large;
 }
 
 #root {
@@ -221,9 +225,7 @@ td, th {
   font-weight: bold;
 }
 
-.div_header>* {
-  /* border: 1px solid greenyellow; */
-}
+
 
 .div_scroll_area {
   flex: 1;
@@ -355,4 +357,15 @@ code {
   /* color: red; */
   /* border: 1px solid; */
   font-style: italic;
+}
+
+
+.dbg_panel {
+
+  position: fixed;
+  width: 300px;
+  height: auto;
+  top: 10px;
+  left: 200px;
+
 }

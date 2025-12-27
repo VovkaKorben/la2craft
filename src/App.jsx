@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import './assets/css/App.css';
 import './assets/css/flex.css';
 import './assets/css/import.css';
@@ -13,7 +13,7 @@ import { SearchItem, ScheduleItem } from './comps/ListItems.jsx';
 import { stringifyWithDepthLimit } from './debug.js';
 import InvImport from './comps/InvImport.jsx';
 import { Drawer } from './comps/Drawer.jsx';
-
+import { io } from 'socket.io-client';
 
 const SolutionLack = ({ data }) => {
     const aa_items = {
@@ -153,6 +153,56 @@ function App() {
     }
 
 
+    // AUTO INVENTORY
+    const [lastUpdate, setLastUpdate] = useState(null); // Время в миллисекундах
+    const [timeAgo, setTimeAgo] = useState("");
+
+    useEffect(() => {
+        // Получаем ваш GUID, чтобы слушать только свои данные
+        const guid = localStorage.getItem('user_guid');
+        if (!guid) return;
+
+        // Подключаемся к нашему серверу
+        const socket = io('http://localhost:49999', {
+            query: { guid }
+        });
+
+        // Ловим событие 'inventory_new'
+        socket.on('inventory_new', (buffer) => {
+            // buffer — это пришедший массив байтов (8 байт на предмет: 4 id + 4 count)
+            const view = new DataView(buffer);
+            const items = {};
+
+            for (let i = 0; i < view.byteLength; i += 8) {
+                const id = view.getUint32(i, true);      // 4 байта ID
+                const count = view.getUint32(i + 4, true); // 4 байта количество
+                items[id] = count;
+
+            }
+
+            // Обновляем основной инвентарь через вашу функцию
+            inventoryImportDone(items);
+
+            // Обновляем дебаг-панель для Барина
+            // setDebugRawData(`Получено предметов: ${items.length} (Время: ${new Date().toLocaleTimeString()})`);
+            setLastUpdate(Date.now());
+        });
+
+        return () => socket.disconnect(); // Чистим за собой при выходе
+    }, []);
+    useEffect(() => {
+        if (!lastUpdate) return;
+
+        const updateLabel = () => {
+            const diffInMinutes = Math.floor((Date.now() - lastUpdate) / 60000);
+            if (diffInMinutes < 1) setTimeAgo("<1m");
+            else setTimeAgo(`${diffInMinutes}m`);
+        };
+
+        updateLabel(); // Обновляем сразу
+        const timer = setInterval(updateLabel, 30000); // И проверяем каждые 30 секунд
+        return () => clearInterval(timer);
+    }, [lastUpdate]);
     // inventory import/show -------------------------------------------
     const [inventory, setInventory] = useState(() => loadDataFromLS("inventory", []));
     const [inventoryImporting, setInventoryImporting] = useState(false);
@@ -160,7 +210,7 @@ function App() {
         setInventoryImporting(false);
         // 2. Проверяем: если пришел НЕ null, значит нажали OK и данные есть
         if (incomingData !== null) {
-            console.log("Импортировано:", incomingData);
+            // console.log("Импортировано:", incomingData);
 
             // 3. Обновляем стейт
             setInventory(incomingData);
@@ -427,16 +477,19 @@ function App() {
                 </div>
 
 
+                {/* INV IMPORT */}
+                <div className="curptr div_border flex_row_center_center padi" onClick={() => setInventoryImporting(true)}                                    >
 
-                <div className="curptr div_border flex_row_center_center"
-                    onClick={() => setInventoryImporting(true)}
-                >
-                    <IconPng
-                        icon="action018"
-                        alt="Import Inventory"
-                        style={{ marginRight: "10px" }}
-                    />Inventory: {Object.keys(inventory || {}).length} item(s)
+                    <IconPng icon="action018" alt="Import Inventory" style={{ marginRight: "10px" }} />
+                    <div className='flex_col_left_center'>
+                        <div> Inventory: {Object.keys(inventory || {}).length} item(s)</div>
+                        {lastUpdate && (
+                            <div className="dimmed">last updated: {timeAgo} ago</div>
+                        )}
+
+                    </div>
                 </div>
+
                 <div
                     onMouseMove={() => handleDrawerOpen(true)}
                     className="drawer_show"></div>
@@ -448,6 +501,10 @@ function App() {
                 state={excludeState}
                 stateChanged={handleExcludeState}
             />
+
+
+
+
             {inventoryImporting && <InvImport className="div_border" onClose={inventoryImportDone} />}
         </>
     )
