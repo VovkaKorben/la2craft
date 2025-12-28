@@ -1,8 +1,7 @@
 uses SysUtils;
 
-const GUID = '0123456789ABCDEF0123456789ABCDEF';
+const GUID = '{{CUSTOM_GUID}}';
 
-// Объявляем функции из системной библиотеки Windows
 function WinHttpOpen(pwszUserAgent: PWideChar; dwAccessType: Cardinal; pwszProxyName: PWideChar; pwszProxyBypass: PWideChar; dwFlags: Cardinal): Pointer; stdcall; external 'winhttp.dll';
 function WinHttpConnect(hSession: Pointer; pswzServerName: PWideChar; nServerPort: Integer; dwReserved: Cardinal): Pointer; stdcall; external 'winhttp.dll';
 function WinHttpOpenRequest(hConnect: Pointer; pwszVerb: PWideChar; pwszObjectName: PWideChar; pwszVersion: PWideChar; pwszReferrer: PWideChar; rplpwszAcceptTypes: Pointer; dwFlags: Cardinal): Pointer; stdcall; external 'winhttp.dll';
@@ -119,28 +118,18 @@ var
   DataPtr: Pointer;
   DataLen: Cardinal;
 begin
-  // Получаем доступ к сырым данным
   DataPtr := AList.GetBuffer;
-  DataLen := AList.TotalCount * 8; // Каждая запись TItemRec = 8 байт
-
-  // Если инвентарь пуст — ничего не шлем
+  DataLen := AList.TotalCount * 8;
   if (DataPtr = nil) or (DataLen = 0) then Exit;
-
-  // Настройки как в вашем тесте [cite: 7]
-  ServerName := 'localhost';
-  Path := '/update?guid=' + AGUID;
+  ServerName := 'mariko.dev';
+  Path := '/inventory?guid=' + AGUID;
   Headers := 'Content-Type: application/octet-stream' + #13#10;
-
-  // Открываем сессию [cite: 8, 9]
-  hSession := WinHttpOpen('mariko.dev.inventory', 1, nil, nil, 0);
+  hSession := WinHttpOpen('mariko.dev.inv', 1, nil, nil, 0);
   if hSession <> nil then begin
-    // Подключаемся к Node.js (порт 5678) 
-    hConnect := WinHttpConnect(hSession, PWideChar(ServerName), 49999, 0);
+    hConnect := WinHttpConnect(hSession, PWideChar(ServerName), 443, 0);
     if hConnect <> nil then begin
-      // Создаем запрос [cite: 3, 11]
-      hRequest := WinHttpOpenRequest(hConnect, 'POST', PWideChar(Path), nil, nil, nil, 0);
+      hRequest := WinHttpOpenRequest(hConnect, 'POST', PWideChar(Path), nil, nil, nil, $00800000);
       if hRequest <> nil then begin
-        // ВАЖНО: Передаем DataPtr напрямую, без преобразований в строку! [cite: 4, 11]
         if WinHttpSendRequest(hRequest, PWideChar(Headers), Length(Headers), DataPtr, DataLen, DataLen, nil) then begin
           WinHttpReceiveResponse(hRequest, nil);
           Print('Inventory (' + IntToStr(AList.TotalCount) + ' item(s)) was sent.');
@@ -166,18 +155,16 @@ begin
             inv_list[current_slot].clear;
             for j := 0 to Inventory.User.Count - 1 do
                   inv_list[current_slot].Values[Inventory.User.Items(j).id] := inv_list[current_slot].Values[Inventory.User.Items(j).id] + Inventory.User.Items(j).count;
-
             if inv_list[0].CheckSum <> inv_list[1].CheckSum then
             begin
-               
                SendInventory(inv_list[current_slot],GUID);
                current_slot := 1 - current_slot;
             end;
-
             delay(200);
     end;
 end;
 
 begin
+    print(format('Started with guid: %s',[GUID]));
     main();
 end.

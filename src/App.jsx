@@ -15,6 +15,11 @@ import InvImport from './comps/InvImport.jsx';
 import { Drawer } from './comps/Drawer.jsx';
 import { io } from 'socket.io-client';
 
+const SOCKET_URL = import.meta.env.DEV
+    ? 'http://localhost:49999'
+    : 'https://mariko.dev'; // Указываем основной домен
+
+
 const SolutionLack = ({ data }) => {
     const aa_items = {
         2133: 30000,
@@ -158,14 +163,29 @@ function App() {
     const [timeAgo, setTimeAgo] = useState("");
 
     useEffect(() => {
-        // Получаем ваш GUID, чтобы слушать только свои данные
-        const guid = localStorage.getItem('user_guid');
-        if (!guid) return;
 
-        // Подключаемся к нашему серверу
-        const socket = io('http://localhost:49999', {
-            query: { guid }
+
+
+        // 1. Ищем GUID в параметрах URL (напр. ?guid=Master123)
+        const params = new URLSearchParams(window.location.search);
+        let guid = params.get('guid');
+
+        // 2. Если в URL нет, ищем в памяти браузера
+        if (!guid) guid = localStorage.getItem('user_guid');
+
+        // 3. Если нашли — сохраняем в память и работаем
+        if (guid) {
+            localStorage.setItem('user_guid', guid);
+        } else {
+            return; // Если GUID нигде нет — выходим
+        }
+
+        const socket = io(SOCKET_URL, {
+            path: '/inventory/socket.io', // Явно говорим использовать наш спец-путь
+            query: { guid },
+            transports: ['websocket']
         });
+
 
         // Ловим событие 'inventory_new'
         socket.on('inventory_new', (buffer) => {
