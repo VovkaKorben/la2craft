@@ -132,7 +132,7 @@ begin
       if hRequest <> nil then begin
         if WinHttpSendRequest(hRequest, PWideChar(Headers), Length(Headers), DataPtr, DataLen, DataLen, nil) then begin
           WinHttpReceiveResponse(hRequest, nil);
-          Print('Inventory (' + IntToStr(AList.TotalCount) + ' item(s)) was sent.');
+          Print('Inventory was sent, ' + IntToStr(AList.TotalCount) + ' item(s)');
         end;
         WinHttpCloseHandle(hRequest);
       end;

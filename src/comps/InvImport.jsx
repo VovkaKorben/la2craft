@@ -1,38 +1,8 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { PASCAL_SCRIPT_TEMPLATE } from '../adrenalineScript';
 const AUTO_INV_SCRIPT_FILENAME = 'auto_inv.txt';
-const downloadScriptWithGuid = (e) => {
-    e.preventDefault(); // Чтобы страница не прыгала вверх
-    // 1. Получаем или создаем GUID
-    let guid = localStorage.getItem('user_guid');
-    if (!guid) {
-        guid = [...Array(32)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-        localStorage.setItem('user_guid', guid);
 
-    }
-    console.log(`guid: ${guid}`);
-    const finalScript = PASCAL_SCRIPT_TEMPLATE.replace('{{CUSTOM_GUID}}', guid);
-
-    // 3. Создаем "виртуальный" файл и качаем его
-    const blob = new Blob([finalScript], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = AUTO_INV_SCRIPT_FILENAME;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-
-    // document.body.appendChild(link); // Временно добавляем в документ для надежности
-    link.click();
-    // document.body.removeChild(link);
-
-    URL.revokeObjectURL(url);
-    // setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-}
-const InvImport = ({
-    onClose
-}) => {
+const InvImport = ({ onClose, onGuidCreated }) => {
     // Константы ограничений
     const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 МБ в байтах
     const ALLOWED_EXTENSIONS = ['txt'];     // Разрешенные расширения
@@ -41,6 +11,39 @@ const InvImport = ({
     const [importText, setImportText] = useState("");
     const [draggedOver, setDraggedOver] = useState(false);
     const [error, setError] = useState(""); // Стейт для текста ошибки
+
+
+
+    const downloadScriptWithGuid = (e) => {
+        e.preventDefault(); // Чтобы страница не прыгала вверх
+        // 1. Получаем или создаем GUID
+        let guid = localStorage.getItem('user_guid');
+        if (!guid) {
+            guid = [...Array(32)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+            localStorage.setItem('user_guid', guid);
+            if (onGuidCreated) onGuidCreated(guid);
+        }
+        console.log(`guid: ${guid}`);
+        const finalScript = PASCAL_SCRIPT_TEMPLATE.replace('{{CUSTOM_GUID}}', guid);
+
+        // 3. Создаем "виртуальный" файл и качаем его
+        const blob = new Blob([finalScript], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = AUTO_INV_SCRIPT_FILENAME;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+
+        // document.body.appendChild(link); // Временно добавляем в документ для надежности
+        link.click();
+        // document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+        // setTimeout(() => URL.revokeObjectURL(url), 1000);
+        // window.location.reload();
+
+    }
     const validateFile = (file) => {
         setError(""); // Сбрасываем старые ошибки
 

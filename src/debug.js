@@ -6,7 +6,7 @@
  * @param {number} [indentSpaces=2] - Количество пробелов для отступа.
  * @returns {string} Строковое представление JSON.
  */
-export function stringifyWithDepthLimit(obj, maxDepth, currentDepth = 0, indentSpaces = 2) {
+export function prettify(obj, maxDepth, currentDepth = 0, indentSpaces = 2) {
     // Если объект имеет тип, который не является объектом (или массивом) ИЛИ это null,
     // просто возвращаем его строковое представление.
     if (typeof obj !== 'object' || obj === null) {

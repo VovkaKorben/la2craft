@@ -1,19 +1,75 @@
 import { IconPng } from './IconPng.jsx';
-import { useState, useEffect } from 'react'
-export const SearchItem = ({ item, className = "", onClick }) => {
+import React, { useState, useEffect } from 'react'
+import { prettify } from '../debug.js'
+const DeleteButton = ({ onClick }) => {
+    const handleClick = () => { if (onClick) onClick(); }
+    return (<button className='red_cross' onClick={handleClick} title="Remove">✕</button>);
+}
+const ListItem = ({ left, right }) => {
     return (
-
-        <div
-            className={`${className}`}
-            onClick={onClick}
-        >
-            <IconPng className="padr" icon={item.icon} alt={item.item_name} />
-            {item.item_name}
-           
-
-            <span className="dimmed padl">{item.success_rate}%</span>
-
+        <div className='list_item'>
+            <div className='list_item_left'>{left}</div>
+            <div className='list_item_right' >{right}</div>
         </div>
+    );
+}
+
+
+export const HistoryItem = ({ elem, onClick, onDelete }) => {
+    const handleDelete = () => { if (onDelete) onDelete(); }
+
+    const RenderItems = ({ items }) => {
+        const r = [];
+        for (let key in items) {
+            r.push(
+                <IconPng
+                    // className="padr"
+                    key={key}
+                    icon={items[key].icon}
+                    alt=''
+                    count={2}
+                />)
+        }
+        return <>{r}</>;
+
+    }
+
+    return (
+        <ListItem
+            left={<RenderItems items={elem.items} />}
+            right={<DeleteButton />}
+
+
+        />
+        // 
+
+
+        // ***{elem.time}***
+
+
+
+
+
+    );
+};
+
+
+export const SearchItem = ({ item, onClick }) => {
+    return (
+        <ListItem
+            onClick={onClick}
+            left={
+                <React.Fragment>
+                    <IconPng className="padr" icon={item.icon} alt={item.item_name} />
+                    {item.item_name}
+                    <span className="dimmed padl">{item.success_rate}%</span>
+                </React.Fragment >
+            }
+            right={<DeleteButton />}
+
+
+        />
+
     );
 };
 
@@ -34,7 +90,7 @@ export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
     //   className=" "
 
     return (
-        <div className={`bc3 schedule_item flex_row_left_center ${className}`}        >
+        <div className={`list_item flex_row_left_center ${className}`}        >
             <IconPng
                 className="padr"
                 icon={item.icon}

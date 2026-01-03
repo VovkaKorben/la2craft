@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+
 *,
 *::before,
 *::after {
@@ -61,62 +63,6 @@ body {
 
 
 
-.la {
-  text-align: left;
-}
-
-.ra {
-  text-align: right;
-}
-
-.nw {
-  white-space: nowrap;
-}
-
-table {
-  border-collapse: collapse;
-  width: 90%;
-  margin-bottom: 10px;
-}
-
-tr, td, th {
-  height: 32px;
-}
-
-td, th {
-  border: 1px solid #ffffff23;
-
-}
-
-
-
-.pad {
-  padding: 0px 5px;
-}
-
-.padl, .padl {
-  padding-left: 5px;
-}
-
-.padr {
-  padding-right: 5px;
-}
-
-.padi {
-  padding: 20px;
-}
-
-.curptr {
-  cursor: pointer;
-}
-
-.icon_holder {
-  width: 32px;
-}
-
-.fntl {
-  font-size: x-large;
-}
 
 #root {
   width: 100%;
@@ -206,19 +152,13 @@ td, th {
 }
 
 .div_header {
-  /* padding: 10px; */
   padding-left: 10px;
-
   height: 40px;
-  /* flex-shrink: 0; */
-
   display: flex;
   align-items: center;
   gap: 10px;
   overflow: visible !important;
   position: relative;
-  /* z-index: 50; */
-  /* border: 1px solid yellow; */
 }
 
 .div_header span {
@@ -248,33 +188,6 @@ td, th {
 
 
 
-.transp {
-  opacity: 0.2;
-}
-
-img {
-  vertical-align: top;
-}
-
-.search_item {
-  cursor: pointer;
-}
-
-.search_item,
-.schedule_item {
-  padding: 2px;
-  margin: 0px 1px 1px 0px;
-  /* background: #e4e8ff; */
-  white-space: nowrap;
-  overflow: hidden;
-  position: relative;
-  width: 400px;
-  height: 36px;
-  color: white;
-  /* height: 56px; */
-  border-radius: 3px;
-  flex-shrink: 0;
-}
 
 
 .dimmed {
@@ -301,12 +214,6 @@ img.dimmed:hover {
 
 
 
-
-.iconpng {
-  width: 32px;
-  height: 32px;
-}
-
 .large_text {
   /* Размеры */
   width: 100%;
@@ -329,20 +236,6 @@ img.dimmed:hover {
   /* На случай, если текст перенесется на 2 строки */
 }
 
-.red_cross {
-  /* width: 100px; */
-  /* height: 50px; */
-  border: none;
-  background: transparent;
-  /* position: absolute; */
-  cursor: pointer;
-  font-weight: bold;
-  color: rgba(134, 134, 134, 0.189);
-  font-size: 20px;
-  width: 30px;
-  /* opacity: 0.2; */
-  transition: color 300ms ease;
-}
 
 
 

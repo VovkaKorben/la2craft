@@ -1,7 +1,14 @@
 // export const API_BASE_URL = 'http://localhost:3500/api/';
 
-export const API_BASE_URL = import.meta.env.DEV   ? 'http://localhost:3500/api/'   : '/craft/api/';
-
+export const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3500/api/' : '/craft/api/';
+export const HISTORY_TYPE = Object.freeze({
+    MANUAL: 'manual',
+    AUTO: 'auto'
+});
+export const HISTORY_LEN = Object.freeze({
+    [HISTORY_TYPE.MANUAL]: 10, // Ключом станет строка 'manual'
+    [HISTORY_TYPE.AUTO]: 5     // Ключом станет строка 'auto'
+});
 export const loadArrayFromLS = (key, expectedLength) => {
     try {
         const savedString = localStorage.getItem(key);

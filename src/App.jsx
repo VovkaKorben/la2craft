@@ -4,16 +4,19 @@ import './assets/css/flex.css';
 import './assets/css/import.css';
 import './assets/css/vcl.css';
 import './assets/css/drawer.css';
+import './assets/css/listitems.css';
+import './assets/css/common.css';
 import './assets/css/tooltip.css';
 import TextInput from './comps/TextInput.jsx';
 // import ButtonSelector from './comps/ButtonSelector.jsx';
-import { API_BASE_URL, loadArrayFromLS, loadDataFromLS, isObject } from './utils.jsx';
+import { API_BASE_URL, loadArrayFromLS, loadDataFromLS, isObject, HISTORY_TYPE, HISTORY_LEN } from './utils.jsx';
 import { IconPng } from './comps/IconPng.jsx';
-import { SearchItem, ScheduleItem } from './comps/ListItems.jsx';
-import { stringifyWithDepthLimit } from './debug.js';
+import { SearchItem, ScheduleItem, HistoryItem } from './comps/ListItems.jsx';
+import { prettify } from './debug.js';
 import InvImport from './comps/InvImport.jsx';
 import { Drawer } from './comps/Drawer.jsx';
 import { io } from 'socket.io-client';
+
 
 const SOCKET_URL = import.meta.env.DEV
     ? 'http://localhost:49999'
@@ -159,30 +162,17 @@ function App() {
 
 
     // AUTO INVENTORY
+    const [userGuid, setUserGuid] = useState(() => localStorage.getItem('user_guid'));
     const [lastUpdate, setLastUpdate] = useState(null); // Время в миллисекундах
     const [timeAgo, setTimeAgo] = useState("");
 
     useEffect(() => {
 
-
-
-        // 1. Ищем GUID в параметрах URL (напр. ?guid=Master123)
-        const params = new URLSearchParams(window.location.search);
-        let guid = params.get('guid');
-
-        // 2. Если в URL нет, ищем в памяти браузера
-        if (!guid) guid = localStorage.getItem('user_guid');
-
-        // 3. Если нашли — сохраняем в память и работаем
-        if (guid) {
-            localStorage.setItem('user_guid', guid);
-        } else {
-            return; // Если GUID нигде нет — выходим
-        }
+        if (!userGuid) return;
 
         const socket = io(SOCKET_URL, {
             path: '/inventory/socket.io', // Явно говорим использовать наш спец-путь
-            query: { guid },
+            query: { guid: userGuid },
             transports: ['websocket']
         });
 
@@ -209,7 +199,8 @@ function App() {
         });
 
         return () => socket.disconnect(); // Чистим за собой при выходе
-    }, []);
+    }, [userGuid]);
+
     useEffect(() => {
         if (!lastUpdate) return;
 
@@ -301,9 +292,7 @@ function App() {
     };
     // clear schedule flag and handler
     const [scheduleClearVisible, setScheduleClearVisible] = useState(false);
-    const scheduleClearAll = () => {
-        setSchedule({}); // Просто обнуляем объект
-    };
+
 
 
     // schedule sort for render
@@ -400,11 +389,37 @@ function App() {
     },
         [schedule, inventory, excludeState, useInventory]);
 
+    // HISTORY -------------------------------------------
+    const [historyVisible, setHistoryVisible] = useState(true);
+    const [history, setHistory] = useState(loadDataFromLS('history', []));
+    const historyAdd = ({ items, type }) => {
+        setHistory((prev) => {
+            // append element
+            const new_items = [
+                ...prev,
+                { items: items, type: type, time: Date.now() }
+            ];
 
 
-
-
-
+            // check for count limit
+            if (new_items.filter((item) => item.type === type).length > HISTORY_LEN[type]) {
+                const oldest_index = new_items.findIndex((item) => item.type === type);
+                new_items.splice(oldest_index, 1);
+            }
+            return new_items;
+        });
+    }
+    useEffect(() => {
+        localStorage.setItem('history', JSON.stringify(history));
+    }, [history]);
+    const historyAddManual = () => {
+        historyAdd({ items: schedule, type: HISTORY_TYPE.MANUAL })
+    }
+    const scheduleClearAll = () => {
+        if (Object.keys(schedule).length)
+            historyAdd({ items: schedule, type: HISTORY_TYPE.AUTO });
+        setSchedule({});
+    };
 
     // MAIN RENDER -------------------------------------------
     return (
@@ -457,35 +472,57 @@ function App() {
 
 
                 </div>
+                {/* SCHEDULE */}
+                <div className="schedule_list div_border div_scrollable" onMouseEnter={() => setScheduleClearVisible(true)} onMouseLeave={() => {
+                    setScheduleClearVisible(false);
+                    //setHistoryVisible(false);
+                }}>
 
-                <div className="schedule_list div_border div_scrollable"
-                    onMouseEnter={() => setScheduleClearVisible(true)}
-                    onMouseLeave={() => setScheduleClearVisible(false)}
-                >
+                    {/* HISTORY CONTROLS */}
                     <div className="div_header" >
-                        Current schedule:
-                        {scheduleClearVisible &&
-                            <span
-                                style={{ cursor: "pointer" }}
-                                className='padl dimmed'
-                                onClick={scheduleClearAll}>
-                                Clear all
-                            </span>
-
-                        }
+                        {historyVisible ? 'History:' : 'Current schedule:'}
+                        {!historyVisible && scheduleClearVisible && <span className='curptr padl dimmed' onClick={scheduleClearAll}>Clear all</span>}
+                        <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px', paddingRight: '10px' }}>
+                            {!historyVisible &&
+                                <React.Fragment>
+                                    <img onClick={historyAddManual} className="icon-fix dimmed curptr" src="./ui/bookmark_add.svg" alt="add bm" />
+                                    <img onMouseEnter={() => setHistoryVisible(true)} className="icon-fix dimmed curptr" src="./ui/bookmark_list.svg" alt="list bm" />
+                                </React.Fragment>
+                            }
+                        </div>
                     </div>
+
+
+
+
+
                     <div className="div_scroll_area">
 
+                        {/* HISTORY LIST */}
+                        {historyVisible &&
+                            history.map((elem, idx) => (
+                                <HistoryItem
+                                    key={idx}
+                                    elem={elem}
 
-                        {sortedSchedule.map((item) => (
-                            <ScheduleItem
-                                key={item.id_mk}
-                                item={item}
-                                onCount={scheduleItemCount}
-                                onDelete={scheduleItemDelete}
-                            />
-                        ))}
+                                // onDelete={scheduleItemDelete}
+                                />
+                            ))
 
+                        }
+
+                        {/* SCHEDULE LIST */}
+                        {!historyVisible &&
+                            sortedSchedule.map((item) => (
+                                <ScheduleItem
+                                    key={item.id_mk}
+                                    item={item}
+                                    onCount={scheduleItemCount}
+                                    onDelete={scheduleItemDelete}
+                                />
+                            ))
+
+                        }
 
                     </div>
                 </div>
@@ -524,8 +561,8 @@ function App() {
 
 
 
+            {inventoryImporting && <InvImport className="div_border" onClose={inventoryImportDone} onGuidCreated={setUserGuid} />}
 
-            {inventoryImporting && <InvImport className="div_border" onClose={inventoryImportDone} />}
         </>
     )
 }

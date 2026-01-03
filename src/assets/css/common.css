@@ -1,0 +1,63 @@
+.transp {
+    opacity: 0.2;
+}
+
+img {
+    vertical-align: top;
+}
+
+.pad {
+    padding: 0px 5px;
+}
+
+.padl, .padl {
+    padding-left: 5px;
+}
+
+.padr {
+    padding-right: 5px;
+}
+
+.padi {
+    padding: 20px;
+}
+
+.curptr {
+    cursor: pointer;
+}
+
+.icon_holder {
+    width: 32px;
+}
+
+.fntl {
+    font-size: x-large;
+}
+
+
+.la {
+    text-align: left;
+}
+
+.ra {
+    text-align: right;
+}
+
+.nw {
+    white-space: nowrap;
+}
+
+table {
+    border-collapse: collapse;
+    width: 90%;
+    margin-bottom: 10px;
+}
+
+tr, td, th {
+    height: 32px;
+}
+
+td, th {
+    border: 1px solid #ffffff23;
+
+}
