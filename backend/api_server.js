@@ -6,8 +6,8 @@ import morgan from 'morgan';
 
 
 import { craft_init } from './craft_logic.js';
-
-
+import { initGlyphService, generateGlyphBuffer } from './num_font.js';
+initGlyphService();
 
 import { errorHandler, notFound } from './middleware/error.js';
 import { createSmartDict } from './SmartMap.js';
@@ -37,7 +37,24 @@ app.get('/api/health', async (req, res) => {
 });
 
 
+app.get('/api/glyph', (req, res) => {
+    const value = req.query.v;
+    if (!value) return res.status(400).send('No value');
 
+    const buffer = generateGlyphBuffer(value);
+    
+    if (!buffer) {
+        return res.status(500).send('Generator not ready or error');
+    }
+
+    res.set({
+        'Content-Type': 'image/png',
+        'Content-Length': buffer.length,
+        'Cache-Control': 'public, max-age=31536000, immutable'
+    });
+
+    res.send(buffer);
+});
 
 
 app.post('/api/excludedids', async (req, res) => {

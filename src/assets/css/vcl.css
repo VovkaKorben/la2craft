@@ -105,3 +105,24 @@ button.normal:hover {
 .hidden-input:checked+.custom-box::after {
     transform: rotate(45deg) scale(1);
 }
+
+.red_cross {
+    border: none;
+    background: transparent;
+
+    cursor: pointer;
+    font-weight: bold;
+    color: rgba(134, 134, 134, 0.189);
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    /* opacity: 0.2; */
+    transition: color 300ms ease;
+    /* background-color: rgba(85, 107, 47, 0.185); */
+    /* vertical-align: middle; */
+}
+
+.red_cross:hover {
+    /* opacity: 1.0; */
+    color: red;
+}

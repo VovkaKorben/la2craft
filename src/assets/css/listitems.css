@@ -1,7 +1,6 @@
 .list_item {
     padding: 2px;
     margin: 0px 1px 1px 0px;
-    /* background: #e4e8ff; */
     white-space: nowrap;
     overflow: hidden;
     position: relative;
@@ -17,14 +16,12 @@
     /* flex-direction: row; */
     /* flex-wrap: nowrap; */
     justify-content: space-between;
-    /* align-items: center; */
+    align-items: center;
     /* align-content: stretch; */
 
-    align-items: flex-start;
+    /* align-items: flex-start; */
+    /* cursor: pointer; */
 
-    /* Форсируем целые отступы */
-    margin-top: 1px;
-    padding: 2px;
 
 }
 
@@ -35,56 +32,25 @@
     /* flex-wrap: nowrap; */
     /* justify-content: flex-end; */
     align-items: center;
-    align-content: stretch;
+    /* align-content: stretch; */
     /* border: 1px solid yellowgreen; */
+
 }
 
 
-.red_cross {
-    border: none;
-    background: transparent;
-
-    cursor: pointer;
-    font-weight: bold;
-    color: rgba(134, 134, 134, 0.189);
-    font-size: 20px;
-    width: 32px;
-    height: 32px;
-    /* opacity: 0.2; */
-    transition: color 300ms ease;
-    /* background-color: rgba(85, 107, 47, 0.185); */
-    vertical-align: middle;
+.iconcount_wrapper {
+    position: relative;
 }
 
 .iconpng {
     width: 32px;
     height: 32px;
+    image-rendering: pixelated;
 }
 
 .iconcount {
-    position: relative;
-    image-rendering: pixelated;
-
-}
-
-.iconcount>span {
-    color: yellow;
     position: absolute;
-    right: 0;
-    bottom: 0;
-    font-family: pixfont;
-    font-size: 8px;
-    font-smooth: never;
-    -webkit-font-smoothing: none;
-    line-height: 1;
-    display: inline-block;
-    text-rendering: optimizeSpeed;
-    letter-spacing: 0;
-
-    padding: 0;
-    margin: 0;
-
-    font-family: "Silkscreen", sans-serif;
-    font-weight: 400;
-    font-style: normal;
+    image-rendering: pixelated;
+    right: 0px;
+    bottom: 0px;
 }

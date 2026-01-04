@@ -1,21 +1,24 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "api_server.js",
   "scripts": {
-    "dev": "nodemon --inspect ./server.js"
+    "dev": "nodemon --inspect ./api_server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "canvas": "^3.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "morgan": "^1.10.1",
+    "path": "^0.12.7",
     "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "url": "^0.11.4"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

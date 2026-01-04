@@ -9,6 +9,20 @@ export const HISTORY_LEN = Object.freeze({
     [HISTORY_TYPE.MANUAL]: 10, // Ключом станет строка 'manual'
     [HISTORY_TYPE.AUTO]: 5     // Ключом станет строка 'auto'
 });
+export const compare_item_sets = (set1, set2) => {
+    // compare length
+    if (Object.keys(set1).length !== Object.keys(set2).length)
+        return false;
+    // const id_mk_list = .sort((a, b) => {
+    for (const id1 in set1) {
+        if (!(id1 in set2))
+            return false;
+        if (set1[id1].count !== set2[id1].count)
+            return false;
+    }
+    return true;
+}
+
 export const loadArrayFromLS = (key, expectedLength) => {
     try {
         const savedString = localStorage.getItem(key);
@@ -52,4 +66,25 @@ export const loadDataFromLS = (key, defaultValue) => {
 
 export function isObject(obj) {
     return typeof x === 'object' && !Array.isArray(x) && x !== null;
+}
+
+
+export function format_timediff(dt) {
+    let d = (Date.now() - dt) / 1000;
+    // seconds
+    if (d < 60)
+        return '<1m';
+
+    // minutes
+    d = Math.floor(d / 60);
+    if (d < 60)
+        return `${d}m`;
+
+    // hours
+    d = Math.floor(d / 60);
+    if (d < 24)
+        return `${d}h`;
+
+    // days
+    return `${d}d`;
 }

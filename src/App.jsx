@@ -10,8 +10,8 @@ import './assets/css/tooltip.css';
 import TextInput from './comps/TextInput.jsx';
 // import ButtonSelector from './comps/ButtonSelector.jsx';
 import { API_BASE_URL, loadArrayFromLS, loadDataFromLS, isObject, HISTORY_TYPE, HISTORY_LEN } from './utils.jsx';
-import { IconPng } from './comps/IconPng.jsx';
-import { SearchItem, ScheduleItem, HistoryItem } from './comps/ListItems.jsx';
+
+import { IconPng, SearchItem, ScheduleItem, HistoryItem } from './comps/ListItems.jsx';
 import { prettify } from './debug.js';
 import InvImport from './comps/InvImport.jsx';
 import { Drawer } from './comps/Drawer.jsx';
@@ -390,15 +390,20 @@ function App() {
         [schedule, inventory, excludeState, useInventory]);
 
     // HISTORY -------------------------------------------
-    const [historyVisible, setHistoryVisible] = useState(true);
+    const [historyVisible, setHistoryVisible] = useState(false);
     const [history, setHistory] = useState(loadDataFromLS('history', []));
-    const historyAdd = ({ items, type }) => {
+    const historyAdd = ({ new_set, type }) => {
         setHistory((prev) => {
+            // search same items
+            let found = prev.findIndex((existing_set) => compare_item_sets(existing_set.items, new_set));
+
+            let new_items = [...prev];
+            if (found >= 0) {
+                // set already exists, cut it off
+                new_items.splice(found, 1);
+            }
             // append element
-            const new_items = [
-                ...prev,
-                { items: items, type: type, time: Date.now() }
-            ];
+            new_items.push({ items: new_set, type: type, time: Date.now() });
 
 
             // check for count limit
@@ -415,6 +420,20 @@ function App() {
     const historyAddManual = () => {
         historyAdd({ items: schedule, type: HISTORY_TYPE.MANUAL })
     }
+    const handleHistoryClick = (elems) => {
+        // alert(`handleHistoryClick`);
+        historyAdd({ items: schedule, type: HISTORY_TYPE.AUTO });
+        setSchedule(elems);
+        setHistoryVisible(false);
+
+    }
+    const handleHistoryDelete = (elem_time) => {
+        // alert(id);
+        setHistory(prev => prev.filter(item => item.time !== elem_time));
+
+    }
+
+
     const scheduleClearAll = () => {
         if (Object.keys(schedule).length)
             historyAdd({ items: schedule, type: HISTORY_TYPE.AUTO });
@@ -475,7 +494,7 @@ function App() {
                 {/* SCHEDULE */}
                 <div className="schedule_list div_border div_scrollable" onMouseEnter={() => setScheduleClearVisible(true)} onMouseLeave={() => {
                     setScheduleClearVisible(false);
-                    //setHistoryVisible(false);
+                    setHistoryVisible(false);
                 }}>
 
                     {/* HISTORY CONTROLS */}
@@ -499,17 +518,22 @@ function App() {
                     <div className="div_scroll_area">
 
                         {/* HISTORY LIST */}
-                        {historyVisible &&
-                            history.map((elem, idx) => (
-                                <HistoryItem
-                                    key={idx}
-                                    elem={elem}
 
-                                // onDelete={scheduleItemDelete}
-                                />
-                            ))
+                        {historyVisible && (
+                            history.length > 0
+                                ? [...history].reverse().map((elem) => (
+                                    <HistoryItem
+                                        key={elem.time}
+                                        elem={elem}
+                                        onClick={handleHistoryClick}
+                                        onDelete={handleHistoryDelete}
 
-                        }
+                                    />
+                                ))
+                                : <div className="large_text">History empty</div>
+                        )}
+
+
 
                         {/* SCHEDULE LIST */}
                         {!historyVisible &&

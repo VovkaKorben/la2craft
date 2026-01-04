@@ -1,53 +1,100 @@
-import { IconPng } from './IconPng.jsx';
 import React, { useState, useEffect } from 'react'
 import { prettify } from '../debug.js'
+import { API_BASE_URL, format_timediff, HISTORY_TYPE } from '../utils.jsx'
+
+
+export const IconPng = ({ icon, count, ...props }) => {
+    const src = `./icon/${icon}.png`;
+
+
+
+    const content = <img
+        src={src}
+        alt={icon}
+        className="iconpng"
+        style={{ borderRadius: "3px" }}
+        {...props}
+    />;
+
+    // 2. Оборачиваем по условию
+    if (count !== 1) {
+        return <div className="iconcount_wrapper">
+            {content}
+            <img className="iconcount" src={`${API_BASE_URL}glyph?v=${count}`} alt='' />
+        </div>;
+    }
+
+    return content;
+
+
+
+
+};
+
 const DeleteButton = ({ onClick }) => {
-    const handleClick = () => { if (onClick) onClick(); }
+    const handleClick = (e) => {
+        e.stopPropagation();
+        if (onClick) onClick();
+    }
     return (<button className='red_cross' onClick={handleClick} title="Remove">✕</button>);
 }
-const ListItem = ({ left, right }) => {
+const ListItem = ({ left, right, onClick, cursor }) => {
     return (
-        <div className='list_item'>
-            <div className='list_item_left'>{left}</div>
-            <div className='list_item_right' >{right}</div>
+        <div onClick={onClick} className='list_item' style={{ cursor: cursor }}>
+            {left && <div className='list_item_left'>{left}</div>}
+            {right && <div className='list_item_right' >{right}</div>}
         </div>
     );
 }
 
-
+const RenderHistoryItems = ({ items }) => {
+    // sort keys by count, then by sort_order
+    const id_mk_list = Object.keys(items).sort((a, b) => {
+        const sort_result = items[b].count - items[a].count;
+        if (sort_result === 0)
+            return items[a].sort_order - items[b].sort_order
+        return sort_result;
+    });
+    const row_items = [];
+    id_mk_list.forEach((id_mk) =>
+        row_items.push(
+            <IconPng
+                key={id_mk}
+                icon={items[id_mk].icon}
+                title={items[id_mk].item_name}
+                alt=''
+                count={items[id_mk].count}
+            />)
+    )
+    return <>{row_items}</>;
+}
 export const HistoryItem = ({ elem, onClick, onDelete }) => {
-    const handleDelete = () => { if (onDelete) onDelete(); }
-
-    const RenderItems = ({ items }) => {
-        const r = [];
-        for (let key in items) {
-            r.push(
-                <IconPng
-                    // className="padr"
-                    key={key}
-                    icon={items[key].icon}
-                    alt=''
-                    count={2}
-                />)
-        }
-        return <>{r}</>;
-
+    const handleDelete = () => {
+        if (onDelete)
+            onDelete(elem.time);
     }
+    const handleClick = () => {
+        if (onClick)
+            onClick(elem.items);
+    }
+
+
 
     return (
         <ListItem
-            left={<RenderItems items={elem.items} />}
-            right={<DeleteButton />}
+            onClick={handleClick}
+            cursor='alias'
+            left={<RenderHistoryItems items={elem.items} />}
+            right={
+                <React.Fragment>
+                    {elem.type === HISTORY_TYPE.AUTO && <span className='dimmed padr12'>auto</span>}
+                    <span className='dimmed padr12'> {format_timediff(elem.time)}</span>
+                    <DeleteButton onClick={handleDelete} />
+                </React.Fragment>
+            }
 
 
         />
-        // 
-
-
-        // ***{elem.time}***
-
-
-
 
 
     );
@@ -58,6 +105,7 @@ export const SearchItem = ({ item, onClick }) => {
     return (
         <ListItem
             onClick={onClick}
+            cursor='copy'
             left={
                 <React.Fragment>
                     <IconPng className="padr" icon={item.icon} alt={item.item_name} />
@@ -65,7 +113,7 @@ export const SearchItem = ({ item, onClick }) => {
                     <span className="dimmed padl">{item.success_rate}%</span>
                 </React.Fragment >
             }
-            right={<DeleteButton />}
+        // right={<DeleteButton />}
 
 
         />
@@ -75,10 +123,8 @@ export const SearchItem = ({ item, onClick }) => {
 
 
 
-export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
-    // const [count, setCount] = useState(item.count);
+export const ScheduleItem = ({ item, onCount, onDelete }) => {
     const handleDelete = () => { if (onDelete) onDelete(item.id_mk); }
-
     const handleCount = (event) => {
 
         let val = parseInt(event.target.value);
@@ -90,36 +136,26 @@ export const ScheduleItem = ({ item, className = "", onCount, onDelete }) => {
     //   className=" "
 
     return (
-        <div className={`list_item flex_row_left_center ${className}`}        >
-            <IconPng
-                className="padr"
-                icon={item.icon}
-                alt={item.item_name}
-            />
-            {item.item_name}<span className='padl dimmed'>{item.success_rate}%</span>
 
-            <div className="schedule_rbox"            >
-                <input
-                    type="number"
-                    value={item.count}
-                    onChange={handleCount}
-                    min={1}
-                    style={{}}
+        <ListItem
+            style={{ cursor: 'copy' }}
+            left={
+                <React.Fragment>
+                    <IconPng className="padr" icon={item.icon} alt={item.item_name} />
+                    {item.item_name}
+                </React.Fragment>
+            }
+            right={
+                <React.Fragment>
+                    <input type="number" value={item.count} onChange={handleCount} min={1} />
+                    <DeleteButton onClick={handleDelete} />
+                </React.Fragment>
+            }
 
-                />
-                <button className='red_cross'
-                    onClick={handleDelete}
-                    style={{
-                        right: "0px",
-                        // border: "1px solid blue",
 
-                    }}
-                    title="Стереть"
-                >
-                    ✕
-                </button>
-            </div>
-        </div>
+        />
+
+
 
     );
 };
