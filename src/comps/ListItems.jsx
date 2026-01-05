@@ -3,7 +3,7 @@ import { prettify } from '../debug.js'
 import { API_BASE_URL, format_timediff, HISTORY_TYPE } from '../utils.jsx'
 
 
-export const IconPng = ({ icon, count, ...props }) => {
+export const IconPng = ({ icon, count = 1, ...props }) => {
     const src = `./icon/${icon}.png`;
 
 
@@ -38,10 +38,10 @@ const DeleteButton = ({ onClick }) => {
     }
     return (<button className='red_cross' onClick={handleClick} title="Remove">✕</button>);
 }
-const ListItem = ({ left, right, onClick, cursor }) => {
+const ListItem = ({ left, right, onClick, cursor, leftClass = '' }) => {
     return (
         <div onClick={onClick} className='list_item' style={{ cursor: cursor }}>
-            {left && <div className='list_item_left'>{left}</div>}
+            {left && <div className={`list_item_left ${leftClass}`}>{left}</div>}
             {right && <div className='list_item_right' >{right}</div>}
         </div>
     );
@@ -61,7 +61,7 @@ const RenderHistoryItems = ({ items }) => {
             <IconPng
                 key={id_mk}
                 icon={items[id_mk].icon}
-                title={items[id_mk].item_name}
+                title={`${items[id_mk].item_name}, ${items[id_mk].success_rate}%`}
                 alt=''
                 count={items[id_mk].count}
             />)
@@ -82,6 +82,7 @@ export const HistoryItem = ({ elem, onClick, onDelete }) => {
 
     return (
         <ListItem
+        leftClass='history_fade'
             onClick={handleClick}
             cursor='alias'
             left={<RenderHistoryItems items={elem.items} />}
@@ -113,11 +114,7 @@ export const SearchItem = ({ item, onClick }) => {
                     <span className="dimmed padl">{item.success_rate}%</span>
                 </React.Fragment >
             }
-        // right={<DeleteButton />}
-
-
         />
-
     );
 };
 
@@ -143,6 +140,7 @@ export const ScheduleItem = ({ item, onCount, onDelete }) => {
                 <React.Fragment>
                     <IconPng className="padr" icon={item.icon} alt={item.item_name} />
                     {item.item_name}
+                    <span className="dimmed padl">{item.success_rate}%</span>
                 </React.Fragment>
             }
             right={

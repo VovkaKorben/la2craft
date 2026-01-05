@@ -9,7 +9,7 @@ import './assets/css/common.css';
 import './assets/css/tooltip.css';
 import TextInput from './comps/TextInput.jsx';
 // import ButtonSelector from './comps/ButtonSelector.jsx';
-import { API_BASE_URL, loadArrayFromLS, loadDataFromLS, isObject, HISTORY_TYPE, HISTORY_LEN } from './utils.jsx';
+import { compare_item_sets, API_BASE_URL, loadArrayFromLS, loadDataFromLS, isObject, HISTORY_TYPE, HISTORY_LEN } from './utils.jsx';
 
 import { IconPng, SearchItem, ScheduleItem, HistoryItem } from './comps/ListItems.jsx';
 import { prettify } from './debug.js';
@@ -30,16 +30,27 @@ const SolutionLack = ({ data }) => {
         1461: 15000,
         1462: 25000
     }
-    let aa_total = 0;
+    const gems = { // D-C-B
+        2130: 1200,
+        2131: 3600,
+        2132: 12000
+    }
+
+    let aa_total = 0, gems_total = 0;
+
     if (!data.length) return (<div className='large_text'>Nothing to show</div>);
     const rows = [];
     data.forEach((item) => {
         const aa_current = item.item_id in aa_items ? aa_items[item.item_id] * item.count : 0;
         aa_total += aa_current;
+
+        const gems_current = item.item_id in gems ? gems[item.item_id] * item.count : 0;
+        gems_total += gems_current;
+
         rows.push(
             <tr key={`lack-${item.item_id}`}>
                 <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
-                <td className='padl nw'>
+                <td className='pad-txt  nw'>
                     <a className='itemlink' href={`https://lineage.pmfun.com/item/${item.item_id}/?sort=chance`} target="_blank">
                         {item.item_name}
                     </a>
@@ -49,9 +60,14 @@ const SolutionLack = ({ data }) => {
                             {aa_current.toLocaleString()} AA
                         </span>
                     )}
+                    {gems_current !== 0 && (
+                        <span className="dimmed padl">
+                            {gems_current.toLocaleString()} a
+                        </span>
+                    )}
 
                 </td>
-                <td className='pad ra nw'>{item.count.toLocaleString()}</td>
+                <td className='pad-num  ra nw'>{item.count.toLocaleString()}</td>
             </tr>);
     });
 
@@ -60,9 +76,16 @@ const SolutionLack = ({ data }) => {
             <tr key="lack-aa" >
                 <td className='icon_holder'><IconPng icon="etc_ancient_adena_i00" alt="AA" /></td>
                 <td className='dimmed padl nw'>Ancient Adena</td>
-                <td className='dimmed pad ra nw'>{aa_total.toLocaleString()}</td>
+                <td className='dimmed pad-num  ra nw'>{aa_total.toLocaleString()}</td>
             </tr>);
 
+    if (gems_total)
+        rows.push(
+            <tr key="lack-adena" >
+                <td className='icon_holder'><IconPng icon="etc_adena_i00" alt="Adena" /></td>
+                <td className='dimmed padl nw'>Gems price</td>
+                <td className='dimmed pad-num  ra nw'>{gems_total.toLocaleString()}</td>
+            </tr>);
 
     return (<>
         <div className="div_header" >
@@ -78,7 +101,8 @@ const SolutionLack = ({ data }) => {
             </div>
         </div>
         <div className="div_scroll_area">
-            <table><tbody>{rows}</tbody></table>
+            <table style={{ marginLeft: '16px', marginRight: "16px" }}>
+                <tbody>{rows}</tbody></table>
         </div>
 
     </>);
@@ -93,9 +117,9 @@ const SolutionCraft = ({ data }) => {
         <tr key="craft-header">
             <th></th>
             <th className='padl la'>Recipe</th>
-            <th className='pad ra'>Hits</th>
-            <th className='pad ra'>Count</th>
-            <th className='pad ra'>Sum</th>
+            <th className='pad-num ra'>Hits</th>
+            <th className='pad-num ra'>Count</th>
+            <th className='pad-num ra'>Sum</th>
         </tr>);
 
     // rows
@@ -107,22 +131,22 @@ const SolutionCraft = ({ data }) => {
         rows.push(
             <tr key={`craft-${index}`}>
                 <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
-                <td className='padl nw'>
+                <td className='pad-txt  nw'>
                     {item.item_name}
                     {item.level === 0 && <span className="dimmed padl">{item.chance}%</span>}
                 </td>
                 {/* <td className='padl'>{stringifyWithDepthLimit(item, 1)}</td> */}
-                <td className='pad ra'>{item.hits.toLocaleString()}</td>
-                <td className='pad ra'>{(item.hits * item.output).toLocaleString()}</td>
-                <td className='pad ra'>{(rowSum || "").toLocaleString()}</td>
+                <td className='pad-num  ra'>{item.hits.toLocaleString()}</td>
+                <td className='pad-num  ra'>{(item.hits * item.output).toLocaleString()}</td>
+                <td className='pad-num  ra'>{(rowSum || "").toLocaleString()}</td>
             </tr>);
     });
+
     // footer
     rows.push(
         <tr key="craft-footer">
-            <th colSpan={4} className='pad ra'>Total sum</th>
-
-            <th className='pad ra'>{(totalSum || "").toLocaleString()}</th>
+            <th colSpan={4} className='pad-num  ra'>Total sum</th>
+            <th className='pad-num  ra'>{(totalSum || "").toLocaleString()}</th>
         </tr>);
 
     return (<>
@@ -138,7 +162,7 @@ const SolutionCraft = ({ data }) => {
             </div>
         </div>
         <div className="div_scroll_area">
-            <table><tbody>{rows}</tbody></table>
+            <table style={{ marginLeft: '16px', marginRight: "16px" }}><tbody>{rows}</tbody></table>
         </div>
 
     </>);
@@ -309,7 +333,7 @@ function App() {
         });
     }, [schedule]); // Пересчитываем только если изменился сам schedule
 
-    // drawer -------------------------------------------
+    // DRAWER -------------------------------------------
     const [excludeState, setExcludeState] = useState(() => loadDataFromLS('excludeState', []));
     const [isDrawerOpen, setDrawerOpen] = useState(false);
     const handleDrawerOpen = (value) => { setDrawerOpen(value); }
@@ -390,29 +414,33 @@ function App() {
         [schedule, inventory, excludeState, useInventory]);
 
     // HISTORY -------------------------------------------
-    const [historyVisible, setHistoryVisible] = useState(false);
+    const [historyVisible, setHistoryVisible] = useState(true);
     const [history, setHistory] = useState(loadDataFromLS('history', []));
-    const historyAdd = ({ new_set, type }) => {
-        setHistory((prev) => {
-            // search same items
-            let found = prev.findIndex((existing_set) => compare_item_sets(existing_set.items, new_set));
+    const historyAdd = ({ items, type }) => {
+        if (Object.keys(items).length > 0) {
+            setHistory((prev) => {
+                // search same items
+                let found = prev.findIndex((existing_set) =>
+                    compare_item_sets(existing_set.items, items)
+                );
 
-            let new_items = [...prev];
-            if (found >= 0) {
-                // set already exists, cut it off
-                new_items.splice(found, 1);
-            }
-            // append element
-            new_items.push({ items: new_set, type: type, time: Date.now() });
+                let new_items = [...prev];
+                if (found >= 0) {
+                    // set already exists, cut it off
+                    new_items.splice(found, 1);
+                }
+                // append element
+                new_items.unshift({ items: items, type: type, time: Date.now() });
 
 
-            // check for count limit
-            if (new_items.filter((item) => item.type === type).length > HISTORY_LEN[type]) {
-                const oldest_index = new_items.findIndex((item) => item.type === type);
-                new_items.splice(oldest_index, 1);
-            }
-            return new_items;
-        });
+                // check for count limit for specified type
+                if (new_items.filter((item) => item.type === type).length > HISTORY_LEN[type]) {
+                    const oldest_index = new_items.findLastIndex((item) => item.type === type);
+                    new_items.splice(oldest_index, 1);
+                }
+                return new_items;
+            });
+        }
     }
     useEffect(() => {
         localStorage.setItem('history', JSON.stringify(history));
@@ -428,12 +456,8 @@ function App() {
 
     }
     const handleHistoryDelete = (elem_time) => {
-        // alert(id);
         setHistory(prev => prev.filter(item => item.time !== elem_time));
-
     }
-
-
     const scheduleClearAll = () => {
         if (Object.keys(schedule).length)
             historyAdd({ items: schedule, type: HISTORY_TYPE.AUTO });
@@ -492,10 +516,12 @@ function App() {
 
                 </div>
                 {/* SCHEDULE */}
-                <div className="schedule_list div_border div_scrollable" onMouseEnter={() => setScheduleClearVisible(true)} onMouseLeave={() => {
-                    setScheduleClearVisible(false);
-                    setHistoryVisible(false);
-                }}>
+                <div className="schedule_list div_border div_scrollable"
+                    onMouseEnter={() => setScheduleClearVisible(true)}
+                    onMouseLeave={() => {
+                        setScheduleClearVisible(false);
+                        setHistoryVisible(false);
+                    }}>
 
                     {/* HISTORY CONTROLS */}
                     <div className="div_header" >
@@ -521,7 +547,7 @@ function App() {
 
                         {historyVisible && (
                             history.length > 0
-                                ? [...history].reverse().map((elem) => (
+                                ? history.map((elem) => (
                                     <HistoryItem
                                         key={elem.time}
                                         elem={elem}

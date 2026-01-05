@@ -1,13 +1,11 @@
-// export const API_BASE_URL = 'http://localhost:3500/api/';
-
 export const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3500/api/' : '/craft/api/';
 export const HISTORY_TYPE = Object.freeze({
     MANUAL: 'manual',
     AUTO: 'auto'
 });
 export const HISTORY_LEN = Object.freeze({
-    [HISTORY_TYPE.MANUAL]: 10, // Ключом станет строка 'manual'
-    [HISTORY_TYPE.AUTO]: 5     // Ключом станет строка 'auto'
+    [HISTORY_TYPE.MANUAL]: 3, // Ключом станет строка 'manual'
+    [HISTORY_TYPE.AUTO]: 2     // Ключом станет строка 'auto'
 });
 export const compare_item_sets = (set1, set2) => {
     // compare length
@@ -86,5 +84,6 @@ export function format_timediff(dt) {
         return `${d}h`;
 
     // days
+    d = Math.floor(d / 24);
     return `${d}d`;
 }

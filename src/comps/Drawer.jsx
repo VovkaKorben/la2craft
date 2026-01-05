@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { IconPng } from './ListItems.jsx';
-// import { IconPng, SearchItem, ScheduleItem, HistoryItem } from './comps/.jsx';
 import { API_BASE_URL, loadDataFromLS } from '../utils.jsx';
 
 export const Drawer = ({ isOpen, openChanged, state, stateChanged }) => {
