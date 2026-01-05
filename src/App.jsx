@@ -23,7 +23,7 @@ const SOCKET_URL = import.meta.env.DEV
     : 'https://mariko.dev'; // Указываем основной домен
 
 
-const SolutionLack = ({ data }) => {
+const SolutionLack = ({ data, isShadow }) => {
     const aa_items = {
         2133: 30000,
         2134: 100000,
@@ -88,7 +88,7 @@ const SolutionLack = ({ data }) => {
             </tr>);
 
     return (<>
-        <div className="div_header" >
+        <div className={`div_header ${isShadow ? 'shadow_table' : ''}`} >
             <span>Lack table</span>
 
             <div className="tooltip-container">
@@ -109,7 +109,7 @@ const SolutionLack = ({ data }) => {
 
 
 }
-const SolutionCraft = ({ data }) => {
+const SolutionCraft = ({ data, isShadow }) => {
     if (!data.length) return (<div className='large_text'>Nothing to show</div>);
     const rows = [];
     // hdr
@@ -150,7 +150,8 @@ const SolutionCraft = ({ data }) => {
         </tr>);
 
     return (<>
-        <div className="div_header" >
+
+        <div className={`div_header ${isShadow ? 'shadow_table' : ''}`} >
             <span>Craft steps</span>
             <div className="tooltip-container">
                 <img
@@ -378,25 +379,31 @@ function App() {
     }, [itemSearch]);
     const itemSearchChanged = (value) => { setItemSearch(value); }
 
-
+    // HISTORY PREVIEW -------------------------------------------
+    const [previewItems, setPreviewItems] = useState({});
+    const handleHistoryMouseEnter = (items) => {
+        console.log('handleHistoryMouseEnter:', items)
+        setPreviewItems(items);
+    }
+    const handleHistoryMouseLeave = () => {
+        setPreviewItems({});
+    }
 
     // solution update -------------------------------------------
     const [solution, setSolution] = useState(null);
 
     useEffect(() => {
         const handleCalculate = async () => {
-
+            console.time("Server calculation"); // Начало замера
             const resp = await fetch(`${API_BASE_URL}solution`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({
                     inventory: useInventory ? inventory : [],
-                    schedule: schedule,
+                    schedule: Object.keys(previewItems).length > 0 ? previewItems : schedule,
                     excluded: excludeState,
-
                 })
             });
-
             const result = await resp.json();
             if (resp.ok && result.success) {
 
@@ -405,27 +412,31 @@ function App() {
             } else {
                 //setSolution(<><b><u>craft error:</u></b><br /> {result.error}</>);
             }
-
+            console.timeEnd("Server calculation"); // В консоли появится время в мс
 
         }
 
         handleCalculate();
     },
-        [schedule, inventory, excludeState, useInventory]);
+        [schedule, inventory, excludeState, useInventory, previewItems]);
+
+
 
     // HISTORY -------------------------------------------
-    const [historyVisible, setHistoryVisible] = useState(true);
+    const [historyVisible, setHistoryVisible] = useState(false);
     const [history, setHistory] = useState(loadDataFromLS('history', []));
     const historyAdd = ({ items, type }) => {
         if (Object.keys(items).length > 0) {
             setHistory((prev) => {
                 // search same items
-                let found = prev.findIndex((existing_set) =>
-                    compare_item_sets(existing_set.items, items)
-                );
+                let found = prev.findIndex((existing_set) => compare_item_sets(existing_set.items, items));
 
                 let new_items = [...prev];
                 if (found >= 0) {
+                    // override incoming type 
+                    if ((new_items[found].type === HISTORY_TYPE.MANUAL) && (type === HISTORY_TYPE.AUTO)) {
+                        type = HISTORY_TYPE.MANUAL;
+                    }
                     // set already exists, cut it off
                     new_items.splice(found, 1);
                 }
@@ -435,7 +446,9 @@ function App() {
 
                 // check for count limit for specified type
                 if (new_items.filter((item) => item.type === type).length > HISTORY_LEN[type]) {
+                    // console.log(`check for count limit for specified type: ${HISTORY_LEN[type]}`);
                     const oldest_index = new_items.findLastIndex((item) => item.type === type);
+                    // console.log(`oldest_index: ${oldest_index}`);
                     new_items.splice(oldest_index, 1);
                 }
                 return new_items;
@@ -463,6 +476,7 @@ function App() {
             historyAdd({ items: schedule, type: HISTORY_TYPE.AUTO });
         setSchedule({});
     };
+
 
     // MAIN RENDER -------------------------------------------
     return (
@@ -501,6 +515,7 @@ function App() {
                 </div>
 
                 <div className="solution_options div_border flex_c">
+
 
                     <label className="checkbox-wrapper">
                         <input
@@ -553,7 +568,8 @@ function App() {
                                         elem={elem}
                                         onClick={handleHistoryClick}
                                         onDelete={handleHistoryDelete}
-
+                                        onMouseEnter={handleHistoryMouseEnter}
+                                        onMouseLeave={handleHistoryMouseLeave}
                                     />
                                 ))
                                 : <div className="large_text">History empty</div>
@@ -577,10 +593,14 @@ function App() {
                     </div>
                 </div>
                 <div className="solution_lack div_border div_scrollable">
-                    {solution && <SolutionLack data={solution.lack} />}
+                    {solution &&
+                        <SolutionLack data={solution.lack} isShadow={Object.keys(previewItems).length > 0} />
+                    }
                 </div>
                 <div className="solution_craft div_border div_scrollable">
-                    {solution && <SolutionCraft data={solution.craft} />}
+                    {solution &&
+                        <SolutionCraft data={solution.craft} isShadow={Object.keys(previewItems).length > 0} />
+                    }
                 </div>
 
 

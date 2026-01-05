@@ -76,7 +76,7 @@ body {
 .container {
   display: grid;
   grid-template-rows: 60px 60px 3fr 5fr;
-  grid-template-columns: 460px min-content min-content 40px;
+  grid-template-columns: 460px 1fr 1fr 40px;
 
   gap: 5px 5px;
   width: 100%;
@@ -171,6 +171,7 @@ body {
   flex-direction: column;
 
   align-items: center;
+  scrollbar-gutter: stable;
 }
 
 
@@ -254,4 +255,10 @@ code {
 
 .history_fade>* {
   margin-right: 2px;
+}
+
+
+.shadow_table {
+  background-color: red;
+  color: blueviolet;
 }

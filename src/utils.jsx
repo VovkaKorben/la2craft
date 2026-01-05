@@ -1,7 +1,8 @@
 export const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:3500/api/' : '/craft/api/';
 export const HISTORY_TYPE = Object.freeze({
     MANUAL: 'manual',
-    AUTO: 'auto'
+    AUTO: 'auto',
+    // UNKNOWN: 'unknown'
 });
 export const HISTORY_LEN = Object.freeze({
     [HISTORY_TYPE.MANUAL]: 3, // Ключом станет строка 'manual'
