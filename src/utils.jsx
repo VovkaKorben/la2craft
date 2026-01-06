@@ -5,8 +5,8 @@ export const HISTORY_TYPE = Object.freeze({
     // UNKNOWN: 'unknown'
 });
 export const HISTORY_LEN = Object.freeze({
-    [HISTORY_TYPE.MANUAL]: 3, // Ключом станет строка 'manual'
-    [HISTORY_TYPE.AUTO]: 2     // Ключом станет строка 'auto'
+    [HISTORY_TYPE.MANUAL]: 10, // Ключом станет строка 'manual'
+    [HISTORY_TYPE.AUTO]: 5     // Ключом станет строка 'auto'
 });
 export const compare_item_sets = (set1, set2) => {
     // compare length

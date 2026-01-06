@@ -22,70 +22,75 @@ const SOCKET_URL = import.meta.env.DEV
     ? 'http://localhost:49999'
     : 'https://mariko.dev'; // Указываем основной домен
 
+const aa_items = {
+    2133: 30000,
+    2134: 100000,
+    1461: 15000,
+    1462: 25000
+}
+const gems = { // D-C-B
+    2130: 1200,
+    2131: 3600,
+    2132: 12000
+}
 
 const SolutionLack = ({ data }) => {
-    const aa_items = {
-        2133: 30000,
-        2134: 100000,
-        1461: 15000,
-        1462: 25000
-    }
-    const gems = { // D-C-B
-        2130: 1200,
-        2131: 3600,
-        2132: 12000
-    }
 
-    let aa_total = 0, gems_total = 0;
+    const rows = useMemo(() => {
+        if (!data.length) return [];
 
+        let aa_total = 0, gems_total = 0;
+        const resultRows = [];
+
+        data.forEach((item) => {
+            const aa_current = item.item_id in aa_items ? aa_items[item.item_id] * item.count : 0;
+            aa_total += aa_current;
+
+            const gems_current = item.item_id in gems ? gems[item.item_id] * item.count : 0;
+            gems_total += gems_current;
+
+            resultRows.push(
+                <tr key={`lack-${item.item_id}`}>
+                    <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
+                    <td className='pad-txt  nw'>
+                        <a className='itemlink' href={`https://lineage.pmfun.com/item/${item.item_id}/?sort=chance`} target="_blank">
+                            {item.item_name}
+                        </a>
+
+                        {aa_current !== 0 && (
+                            <span className="dimmed padl">
+                                {aa_current.toLocaleString()} AA
+                            </span>
+                        )}
+                        {gems_current !== 0 && (
+                            <span className="dimmed padl">
+                                {gems_current.toLocaleString()} a
+                            </span>
+                        )}
+
+                    </td>
+                    <td className='pad-num  ra nw'>{item.count.toLocaleString()}</td>
+                </tr>);
+        });
+
+        if (aa_total)
+            resultRows.push(
+                <tr key="lack-aa" >
+                    <td className='icon_holder'><IconPng icon="etc_ancient_adena_i00" alt="AA" /></td>
+                    <td className='dimmed padl nw'>Ancient Adena</td>
+                    <td className='dimmed pad-num  ra nw'>{aa_total.toLocaleString()}</td>
+                </tr>);
+
+        if (gems_total)
+            resultRows.push(
+                <tr key="lack-adena" >
+                    <td className='icon_holder'><IconPng icon="etc_adena_i00" alt="Adena" /></td>
+                    <td className='dimmed padl nw'>Gems price</td>
+                    <td className='dimmed pad-num  ra nw'>{gems_total.toLocaleString()}</td>
+                </tr>);
+        return resultRows;
+    }, [data]); // Пересчитываем только если изменился solution.lack
     if (!data.length) return (<div className='large_text'>Nothing to show</div>);
-    const rows = [];
-    data.forEach((item) => {
-        const aa_current = item.item_id in aa_items ? aa_items[item.item_id] * item.count : 0;
-        aa_total += aa_current;
-
-        const gems_current = item.item_id in gems ? gems[item.item_id] * item.count : 0;
-        gems_total += gems_current;
-
-        rows.push(
-            <tr key={`lack-${item.item_id}`}>
-                <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
-                <td className='pad-txt  nw'>
-                    <a className='itemlink' href={`https://lineage.pmfun.com/item/${item.item_id}/?sort=chance`} target="_blank">
-                        {item.item_name}
-                    </a>
-
-                    {aa_current !== 0 && (
-                        <span className="dimmed padl">
-                            {aa_current.toLocaleString()} AA
-                        </span>
-                    )}
-                    {gems_current !== 0 && (
-                        <span className="dimmed padl">
-                            {gems_current.toLocaleString()} a
-                        </span>
-                    )}
-
-                </td>
-                <td className='pad-num  ra nw'>{item.count.toLocaleString()}</td>
-            </tr>);
-    });
-
-    if (aa_total)
-        rows.push(
-            <tr key="lack-aa" >
-                <td className='icon_holder'><IconPng icon="etc_ancient_adena_i00" alt="AA" /></td>
-                <td className='dimmed padl nw'>Ancient Adena</td>
-                <td className='dimmed pad-num  ra nw'>{aa_total.toLocaleString()}</td>
-            </tr>);
-
-    if (gems_total)
-        rows.push(
-            <tr key="lack-adena" >
-                <td className='icon_holder'><IconPng icon="etc_adena_i00" alt="Adena" /></td>
-                <td className='dimmed padl nw'>Gems price</td>
-                <td className='dimmed pad-num  ra nw'>{gems_total.toLocaleString()}</td>
-            </tr>);
 
     return (<>
         <div className='div_header' >
@@ -110,45 +115,49 @@ const SolutionLack = ({ data }) => {
 
 }
 const SolutionCraft = ({ data }) => {
-    if (!data.length) return (<div className='large_text'>Nothing to show</div>);
-    const rows = [];
-    // hdr
-    rows.push(
-        <tr key="craft-header">
-            <th></th>
-            <th className='padl la'>Recipe</th>
-            <th className='pad-num ra'>Hits</th>
-            <th className='pad-num ra'>Count</th>
-            <th className='pad-num ra'>Sum</th>
-        </tr>);
+    const { rows, totalSum } = useMemo(() => {
+        if (!data.length) return { rows: [], totalSum: 0 };
+        const resultRows = [];
 
-    // rows
-    let totalSum = 0;
-    data.forEach((item, index) => {
-        const rowSum = item.hits * item.price || 0;
-        totalSum += rowSum;
-        // console.log(item.item_id);
-        rows.push(
-            <tr key={`craft-${index}`}>
-                <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
-                <td className='pad-txt  nw'>
-                    {item.item_name}
-                    {item.level === 0 && <span className="dimmed padl">{item.chance}%</span>}
-                </td>
-                {/* <td className='padl'>{stringifyWithDepthLimit(item, 1)}</td> */}
-                <td className='pad-num  ra'>{item.hits.toLocaleString()}</td>
-                <td className='pad-num  ra'>{(item.hits * item.output).toLocaleString()}</td>
-                <td className='pad-num  ra'>{(rowSum || "").toLocaleString()}</td>
+        // hdr
+        resultRows.push(
+            <tr key="craft-header">
+                <th></th>
+                <th className='padl la'>Recipe</th>
+                <th className='pad-num ra'>Hits</th>
+                <th className='pad-num ra'>Count</th>
+                <th className='pad-num ra'>Sum</th>
             </tr>);
-    });
 
-    // footer
-    rows.push(
-        <tr key="craft-footer">
-            <th colSpan={4} className='pad-num  ra'>Total sum</th>
-            <th className='pad-num  ra'>{(totalSum || "").toLocaleString()}</th>
-        </tr>);
+        // rows
+        let currentSum = 0;
+        data.forEach((item, index) => {
+            const rowSum = item.hits * item.price || 0;
+            currentSum += rowSum;
+            // console.log(item.item_id);
+            resultRows.push(
+                <tr key={`craft-${index}`}>
+                    <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
+                    <td className='pad-txt  nw'>
+                        {item.item_name}
+                        {item.level === 0 && <span className="dimmed padl">{item.chance}%</span>}
+                    </td>
+                    {/* <td className='padl'>{stringifyWithDepthLimit(item, 1)}</td> */}
+                    <td className='pad-num  ra'>{item.hits.toLocaleString()}</td>
+                    <td className='pad-num  ra'>{(item.hits * item.output).toLocaleString()}</td>
+                    <td className='pad-num  ra'>{(rowSum || "").toLocaleString()}</td>
+                </tr>);
+        });
 
+        // footer
+        resultRows.push(
+            <tr key="craft-footer">
+                <th colSpan={4} className='pad-num  ra'>Total sum</th>
+                <th className='pad-num  ra'>{(currentSum || "").toLocaleString()}</th>
+            </tr>);
+        return { rows: resultRows, totalSum: currentSum };
+    }, [data]);
+    if (!data.length) return (<div className='large_text'>Nothing to show</div>);
     return (<>
 
         <div className='div_header' >
@@ -415,7 +424,7 @@ function App() {
 
 
     // HISTORY -------------------------------------------
-    const [historyVisible, setHistoryVisible] = useState(true);
+    const [historyVisible, setHistoryVisible] = useState(false);
     const [history, setHistory] = useState(loadDataFromLS('history', []));
     const historyAdd = ({ items, type }) => {
         if (Object.keys(items).length > 0) {

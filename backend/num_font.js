@@ -2,19 +2,23 @@ import { createCanvas, loadImage } from 'canvas';
 
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import fs from 'fs'; // Добавляем встроенный модуль для проверки файлов
 
-// Получаем путь к текущему файлу
 const __filename = fileURLToPath(import.meta.url);
-// Получаем папку, в которой лежит этот файл (backend)
 const __dirname = dirname(__filename);
 
 const GLYPH_CONFIG = {
     width: 9,
     height: 9,
     nums: [7, 6, 7, 7, 7, 7, 7, 7, 7, 7],
-    spritePath: join(__dirname, '..', 'public', 'ui', 'font.png')
+    spritePath: getSpritePath()
 };
+function getSpritePath() {
+    const serverPath = join(__dirname, '..', 'craft', 'ui', 'font.png');
+    const localPath = join(__dirname, '..', 'public', 'ui', 'font.png');
 
+    return fs.existsSync(serverPath) ? serverPath : localPath;
+};
 let digitSprite = null;
 
 // Загружаем спрайт один раз при инициализации модуля

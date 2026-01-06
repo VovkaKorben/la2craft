@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { prettify } from '../debug.js'
 import { API_BASE_URL, format_timediff, HISTORY_TYPE } from '../utils.jsx'
 
@@ -50,24 +50,27 @@ const ListItem = ({ left, right, onClick, cursor, leftClass = '' }) => {
 }
 
 const RenderHistoryItems = ({ items }) => {
-    // sort keys by count, then by sort_order
-    const id_mk_list = Object.keys(items).sort((a, b) => {
-        const sort_result = items[b].count - items[a].count;
-        if (sort_result === 0)
-            return items[a].sort_order - items[b].sort_order
-        return sort_result;
-    });
-    const row_items = [];
-    id_mk_list.forEach((id_mk) =>
-        row_items.push(
+    const row_items = useMemo(() => {
+        // Сортируем ключи один раз для этого набора предметов
+        const id_mk_list = Object.keys(items).sort((a, b) => {
+            const sort_result = items[b].count - items[a].count;
+            if (sort_result === 0)
+                return items[a].sort_order - items[b].sort_order;
+            return sort_result;
+        });
+
+        // Генерируем массив иконок
+        return id_mk_list.map((id_mk) => (
             <IconPng
                 key={id_mk}
                 icon={items[id_mk].icon}
                 title={`${items[id_mk].item_name}, ${items[id_mk].success_rate}%`}
                 alt=''
                 count={items[id_mk].count}
-            />)
-    )
+            />
+        ));
+    }, [items]); // Пересчитываем только если изменился конкретный набор предметов
+
     return <>{row_items}</>;
 }
 export const HistoryItem = ({ elem, onClick, onDelete }) => {
