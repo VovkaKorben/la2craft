@@ -23,7 +23,7 @@ const SOCKET_URL = import.meta.env.DEV
     : 'https://mariko.dev'; // Указываем основной домен
 
 
-const SolutionLack = ({ data, isShadow }) => {
+const SolutionLack = ({ data }) => {
     const aa_items = {
         2133: 30000,
         2134: 100000,
@@ -88,7 +88,7 @@ const SolutionLack = ({ data, isShadow }) => {
             </tr>);
 
     return (<>
-        <div className={`div_header ${isShadow ? 'shadow_table' : ''}`} >
+        <div className='div_header' >
             <span>Lack table</span>
 
             <div className="tooltip-container">
@@ -109,7 +109,7 @@ const SolutionLack = ({ data, isShadow }) => {
 
 
 }
-const SolutionCraft = ({ data, isShadow }) => {
+const SolutionCraft = ({ data }) => {
     if (!data.length) return (<div className='large_text'>Nothing to show</div>);
     const rows = [];
     // hdr
@@ -151,7 +151,7 @@ const SolutionCraft = ({ data, isShadow }) => {
 
     return (<>
 
-        <div className={`div_header ${isShadow ? 'shadow_table' : ''}`} >
+        <div className='div_header' >
             <span>Craft steps</span>
             <div className="tooltip-container">
                 <img
@@ -379,28 +379,20 @@ function App() {
     }, [itemSearch]);
     const itemSearchChanged = (value) => { setItemSearch(value); }
 
-    // HISTORY PREVIEW -------------------------------------------
-    const [previewItems, setPreviewItems] = useState({});
-    const handleHistoryMouseEnter = (items) => {
-        console.log('handleHistoryMouseEnter:', items)
-        setPreviewItems(items);
-    }
-    const handleHistoryMouseLeave = () => {
-        setPreviewItems({});
-    }
+
 
     // solution update -------------------------------------------
     const [solution, setSolution] = useState(null);
 
     useEffect(() => {
         const handleCalculate = async () => {
-            console.time("Server calculation"); // Начало замера
+            // console.time("Server calculation"); // Начало замера
             const resp = await fetch(`${API_BASE_URL}solution`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({
                     inventory: useInventory ? inventory : [],
-                    schedule: Object.keys(previewItems).length > 0 ? previewItems : schedule,
+                    schedule: schedule,
                     excluded: excludeState,
                 })
             });
@@ -412,18 +404,18 @@ function App() {
             } else {
                 //setSolution(<><b><u>craft error:</u></b><br /> {result.error}</>);
             }
-            console.timeEnd("Server calculation"); // В консоли появится время в мс
+            // console.timeEnd("Server calculation"); // В консоли появится время в мс
 
         }
 
         handleCalculate();
     },
-        [schedule, inventory, excludeState, useInventory, previewItems]);
+        [schedule, inventory, excludeState, useInventory]);
 
 
 
     // HISTORY -------------------------------------------
-    const [historyVisible, setHistoryVisible] = useState(false);
+    const [historyVisible, setHistoryVisible] = useState(true);
     const [history, setHistory] = useState(loadDataFromLS('history', []));
     const historyAdd = ({ items, type }) => {
         if (Object.keys(items).length > 0) {
@@ -568,8 +560,6 @@ function App() {
                                         elem={elem}
                                         onClick={handleHistoryClick}
                                         onDelete={handleHistoryDelete}
-                                        onMouseEnter={handleHistoryMouseEnter}
-                                        onMouseLeave={handleHistoryMouseLeave}
                                     />
                                 ))
                                 : <div className="large_text">History empty</div>
@@ -594,12 +584,12 @@ function App() {
                 </div>
                 <div className="solution_lack div_border div_scrollable">
                     {solution &&
-                        <SolutionLack data={solution.lack} isShadow={Object.keys(previewItems).length > 0} />
+                        <SolutionLack data={solution.lack} />
                     }
                 </div>
                 <div className="solution_craft div_border div_scrollable">
                     {solution &&
-                        <SolutionCraft data={solution.craft} isShadow={Object.keys(previewItems).length > 0} />
+                        <SolutionCraft data={solution.craft} />
                     }
                 </div>
 

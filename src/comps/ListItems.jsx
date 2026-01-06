@@ -38,14 +38,10 @@ const DeleteButton = ({ onClick }) => {
     }
     return (<button className='red_cross' onClick={handleClick} title="Remove">✕</button>);
 }
-const ListItem = ({ left, right, onClick, cursor, leftClass = '',
-    onMouseEnter = null, onMouseLeave = null
-}) => {
+const ListItem = ({ left, right, onClick, cursor, leftClass = '' }) => {
     return (
         <div
             onClick={onClick}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
             className='list_item' style={{ cursor: cursor }}>
             {left && <div className={`list_item_left ${leftClass}`}>{left}</div>}
             {right && <div className='list_item_right' >{right}</div>}
@@ -74,7 +70,7 @@ const RenderHistoryItems = ({ items }) => {
     )
     return <>{row_items}</>;
 }
-export const HistoryItem = ({ elem, onClick, onDelete, onMouseEnter, onMouseLeave }) => {
+export const HistoryItem = ({ elem, onClick, onDelete }) => {
     const handleDelete = () => {
         if (onDelete)
             onDelete(elem.time);
@@ -83,15 +79,7 @@ export const HistoryItem = ({ elem, onClick, onDelete, onMouseEnter, onMouseLeav
         if (onClick)
             onClick(elem.items);
     }
-    const handleMouseEnter = () => {
-        // console.log('handleMouseEnter: ', elem.items);
-        if (onMouseEnter)
-            onMouseEnter(elem.items);
-    }
-    const handleMouseLeave = () => {
-        if (onMouseLeave)
-            onMouseLeave();
-    }
+
 
 
 
@@ -100,8 +88,6 @@ export const HistoryItem = ({ elem, onClick, onDelete, onMouseEnter, onMouseLeav
             leftClass='history_fade'
             onClick={handleClick}
             cursor='alias'
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
             left={<RenderHistoryItems items={elem.items} />}
             right={
                 <React.Fragment>

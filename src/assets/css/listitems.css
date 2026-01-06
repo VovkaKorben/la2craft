@@ -7,36 +7,37 @@
     width: 400px;
     height: 36px;
     color: white;
-    /* height: 56px; */
     border-radius: 3px;
     flex-shrink: 0;
     background-color: #0f3a55;
-
-    display: flex;
-    /* flex-direction: row; */
-    /* flex-wrap: nowrap; */
-    justify-content: space-between;
-    align-items: center;
-    /* align-content: stretch; */
-
-    /* align-items: flex-start; */
-    /* cursor: pointer; */
-
-
 }
 
 .list_item_left,
 .list_item_right {
     display: flex;
     flex-direction: row;
-    /* flex-wrap: nowrap; */
-    /* justify-content: flex-end; */
     align-items: center;
-    /* align-content: stretch; */
+    position: absolute;
     /* border: 1px solid yellowgreen; */
-
 }
 
+.list_item_left {
+    left: 2px
+}
+
+.list_item_right {
+    right: 2px;
+}
+
+
+.history_fade {
+    -webkit-mask-image: linear-gradient(90deg, black 200px, transparent 280px);
+    mask-image: linear-gradient(90deg, black 200px, transparent 280px);
+}
+
+.history_fade>* {
+    margin-right: 2px;
+}
 
 .iconcount_wrapper {
     position: relative;

@@ -247,18 +247,3 @@ code {
   left: 200px;
 
 }
-
-.history_fade {
-  -webkit-mask-image: linear-gradient(90deg, black 200px, transparent 280px);
-  mask-image: linear-gradient(90deg, black 200px, transparent 280px);
-}
-
-.history_fade>* {
-  margin-right: 2px;
-}
-
-
-.shadow_table {
-  background-color: red;
-  color: blueviolet;
-}
