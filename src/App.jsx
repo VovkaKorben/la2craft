@@ -18,9 +18,25 @@ import { Drawer } from './comps/Drawer.jsx';
 import { io } from 'socket.io-client';
 
 
-const SOCKET_URL = import.meta.env.DEV
-    ? 'http://localhost:49999'
-    : 'https://mariko.dev'; // Указываем основной домен
+const getSocketUrl = () => {
+    const { hostname, protocol } = window.location;
+
+    // 1. Если запущен локальный сервер Vite (npm run dev)
+    if (import.meta.env.DEV) {
+        return `http://${hostname}:49999`;
+    }
+
+    // 2. Если это билд, запущенный на виртуалке (по IP)
+    if (hostname.startsWith('192.168') || hostname === 'localhost') {
+        return `http://${hostname}:49999`;
+    }
+
+    // 3. Во всех остальных случаях (боевой домен)
+    return `https://${hostname}`;
+};
+
+const SOCKET_URL = getSocketUrl();
+// const SOCKET_URL = import.meta.env.DEV    ? 'http://192.168.37.129:49999'    : 'https://mariko.dev'; 
 
 const aa_items = {
     2133: 30000,
@@ -211,25 +227,15 @@ function App() {
         });
 
 
+        // window.mySocket = socket;
+
         // Ловим событие 'inventory_new'
         socket.on('inventory_new', (buffer) => {
-            // buffer — это пришедший массив байтов (8 байт на предмет: 4 id + 4 count)
-            const view = new DataView(buffer);
-            const items = {};
-
-            for (let i = 0; i < view.byteLength; i += 8) {
-                const id = view.getUint32(i, true);      // 4 байта ID
-                const count = view.getUint32(i + 4, true); // 4 байта количество
-                items[id] = count;
-
+            // console.log(`socket.on => inventory_new`);            console.log(buffer);
+            if (buffer && buffer.items) {
+                inventoryImportDone(buffer.items);
+                setLastUpdate(buffer.timestamp);
             }
-
-            // Обновляем основной инвентарь через вашу функцию
-            inventoryImportDone(items);
-
-            // Обновляем дебаг-панель для Барина
-            // setDebugRawData(`Получено предметов: ${items.length} (Время: ${new Date().toLocaleTimeString()})`);
-            setLastUpdate(Date.now());
         });
 
         return () => socket.disconnect(); // Чистим за собой при выходе

@@ -7,17 +7,18 @@ import fs from 'fs'; // Добавляем встроенный модуль д�
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const GLYPH_CONFIG = {
-    width: 9,
-    height: 9,
-    nums: [7, 6, 7, 7, 7, 7, 7, 7, 7, 7],
-    spritePath: getSpritePath()
-};
 function getSpritePath() {
     const serverPath = join(__dirname, '..', 'craft', 'ui', 'font.png');
     const localPath = join(__dirname, '..', 'public', 'ui', 'font.png');
 
     return fs.existsSync(serverPath) ? serverPath : localPath;
+};
+
+const GLYPH_CONFIG = {
+    width: 9,
+    height: 9,
+    nums: [7, 6, 7, 7, 7, 7, 7, 7, 7, 7],
+    spritePath: getSpritePath()
 };
 let digitSprite = null;
 

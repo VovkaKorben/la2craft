@@ -25,7 +25,7 @@ io.on('connection', (socket) => {
 
     if (guid) {
         clients.set(guid, socket);
-        console.log(`[SOCKET] Подключен клиент GUID: ${guid}`); // ЛОГ
+        console.log(`[io.on connection] Connected GUID: ${guid}`); // ЛОГ
 
 
         // ПРОВЕРКА ПАМЯТИ: Если в сейфе что-то есть — отдаем сразу
@@ -57,25 +57,39 @@ app.get('/inventory/health', (req, res) => {
 app.post('/inventory', (req, res) => {
     const guid = req.query.guid;
 
-    lastDataCache.set(guid, req.body);
-    console.log(`[HTTP] Данные сохранены для ${guid}: ${req.body.length} байт`);
+    // Создаем пакет: данные + метка времени
+    const items = {};
+    for (let i = 0; i < req.body.length; i += 8) {
+        const item_id = req.body.readUInt32LE(i);
+        const item_count = req.body.readUInt32LE(i + 4);
+        items[item_id] = item_count;
+    }
+    const items_total = Object.keys(items).length;
+    const updatePackage = {
+        items: items,
+        timestamp: Date.now()
+    };
+
+    lastDataCache.set(guid, updatePackage);
+    console.log(`[POST /inventory] For ${guid} recieved: ${items_total} items`);
 
 
     const targetSocket = clients.get(guid);
 
-    console.log(`[HTTP] Получены данные для ${guid}: ${req.body.length} байт`);
 
-    if (targetSocket && req.body.length > 0) {
+    // console.log(`[updatePackage]`, JSON.stringify(updatePackage).substring(0, 150) + '...');
+    if (targetSocket) {
         // Отправляем байты в Реакт
-        targetSocket.emit('inventory_new', req.body);
-        console.log(`[WSS] Данные успешно пересланы в Реакт для ${guid}`);
+        // console.log(`[DEBUG] Отправляю в сокет:`, JSON.stringify(updatePackage).substring(0, 150) + '...');
+        targetSocket.emit('inventory_new', updatePackage);
+        console.log(`[WSS] Emitted to ${guid}`);
     } else if (!targetSocket) {
-        console.log(`[!] Ошибка: Реакт с GUID ${guid} не подключен к сокету!`);
+        console.log(`[!] Error: React GUID ${guid} not connected to socket!`);
     }
 
     res.sendStatus(200);
 });
 
 server.listen(port, '0.0.0.0', () => {
-    console.log(`Сервер-приемник готов на порту ${port}`);
+    console.log(`Listening on ${port}`);
 });
