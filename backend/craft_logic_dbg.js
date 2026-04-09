@@ -126,7 +126,24 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
 
 export const craft_init = async (data) => {
-  
+   /*
+    const test_inv = {
+1881:200
+
+
+    }
+ const params = {
+        cache: {},
+        db: await openDb(),
+        inventory: createSmartDict2(test_inv), // production => replace true with use_inventory
+        craft: {},
+        item_info: {},
+        excluded: data.excluded
+
+    };
+ */
+
+
     const params = {
         cache: {},
         db: await openDb(),
@@ -166,3 +183,20 @@ export const craft_init = async (data) => {
 }
 
 
+
+             const test_inv = {
+1881:250,
+1880:232222,
+1878:55555,
+1879:55555,
+1884:55555,
+1872:55555,
+1885:55555,
+1894:55555,
+1888:55555,
+4046:55555,
+
+
+    }
+
+const test_schedule = {5296:1,5295:1,5293:1}
