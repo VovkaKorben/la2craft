@@ -155,7 +155,7 @@ const SolutionCraft = ({ data }) => {
                 <tr key={`craft-${index}`}>
                     <td className='icon_holder'><IconPng icon={item.icon} alt={item.item_name} /></td>
                     <td className='pad-txt  nw'>
-                        {item.item_name}
+                        {item.item_name} ({item.item_id})
                         {item.level === 0 && <span className="dimmed padl">{item.chance}%</span>}
                     </td>
                     {/* <td className='padl'>{stringifyWithDepthLimit(item, 1)}</td> */}
@@ -402,11 +402,27 @@ function App() {
     useEffect(() => {
         const handleCalculate = async () => {
             // console.time("Server calculation"); // Начало замера
+             const test_inv = {
+1881:250,
+1880:232222,
+1878:55555,
+1879:55555,
+1884:55555,
+1872:55555,
+1885:55555,
+1894:55555,
+1888:55555,
+4046:55555,
+
+
+    }
+           
             const resp = await fetch(`${API_BASE_URL}solution`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({
-                    inventory: useInventory ? inventory : [],
+                   // inventory: useInventory ? inventory : [],
+                    inventory: useInventory ? test_inv : [],
                     schedule: schedule,
                     excluded: excludeState,
                 })

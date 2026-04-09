@@ -126,17 +126,34 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
 
 export const craft_init = async (data) => {
-    // const databaseConnection = ;
+   /*
+    const test_inv = {
+1881:200
+
+
+    }
+ const params = {
+        cache: {},
+        db: await openDb(),
+        inventory: createSmartDict2(test_inv), // production => replace true with use_inventory
+        craft: {},
+        item_info: {},
+        excluded: data.excluded
+
+    };
+ */
+
+
     const params = {
         cache: {},
         db: await openDb(),
-
         inventory: createSmartDict2(data.inventory), // production => replace true with use_inventory
         craft: {},
         item_info: {},
         excluded: data.excluded
 
     };
+   
     for (const [key, value] of Object.entries(data.schedule)) {
         await process_craft(params, value.id_mk, value.count);
     }
