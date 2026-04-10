@@ -111,6 +111,9 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
             let sub_required = hit_count * sub.count;
             params.inventory[sub.item_id] -= sub_required;
+           
+           убираем это, чтобы рекурсия
+           
             if (params.inventory[sub.item_id] < 0) {
 
 
@@ -128,7 +131,7 @@ const process_craft = async (params, id_mk, count, level = 0) => {
             }
 
         }
-        const retval = hit_count * params.cache[id_mk].output;
+        const retval = hit_count * params.recipe_cache[id_mk].output;
         return retval;
     } catch (err) {
         console.error('error:', err);
