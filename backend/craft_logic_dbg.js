@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { createSmartDict2 } from './SmartMap.js';
 import { openDb } from './dbUtils.js';
+import { prettify, justKeys } from './debug.js';
 
 dotenv.config();
 
@@ -15,9 +16,9 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
 
 
-        // check recipe in cache
-        if (!(id_mk in params.cache)) {
-            // read recipe from DB
+        // проверяем есть ли рецепт в кэше
+        if (!(id_mk in params.recipe_cache)) {
+            // читаем рецепт и все входящие в него ингридиенты
             const recipe_data = await params.db.get(`
                                             select 
                                                 i.name as item_name, 
@@ -29,11 +30,19 @@ const process_craft = async (params, id_mk, count, level = 0) => {
                                             from recipes r
                                             LEFT JOIN items i ON i.id = r.id_item
                                             where r.id_mk = ?`, [id_mk]);
-            params.cache[id_mk] = {
-                ...recipe_data,
-                input: []
-            };
-            // read the materials with their (possible) recipes
+
+
+
+            console.log('*** RECIPE DATA ***');
+            //console.table([recipe_data], ['item_id', 'id_mk', 'item_name']);
+            console.table([recipe_data]);
+
+
+
+            // готовимся читать ингридиенты
+            const recipe_input = []
+
+            // читаем ингридиенты с возможными рецептами
             const material_data = await params.db.all(`
                                             SELECT 
                                                 m.material_id, 
@@ -47,56 +56,58 @@ const process_craft = async (params, id_mk, count, level = 0) => {
                                             LEFT JOIN recipes r ON r.id_item = m.material_id
                                             WHERE m.id_mk = ?
                                             `, [id_mk]);
+
+            console.log('*** MATERIAL DATA ***');
+            console.table(material_data, ['material_id', 'item_name', 'id_mk', 'material_count']);
+
+
             material_data.forEach((material) => {
 
-                // update item info
-                if (!params.item_info[material.material_id]) {
-                    params.item_info[material.material_id] = {
-                        item_name: material.item_name,
-                        icon: material.icon,
-                        sort_order: material.sort_order
-                        // price: material.price,
-
-                    };
+                // обновляем базу предметов
+                if (!params.items_cache[material.material_id]) {
+                    params.items_cache[material.material_id] = { item_name: material.item_name, icon: material.icon, sort_order: material.sort_order };
                 }
 
-
-                params.cache[id_mk].input.push({
-                    item_name: material.item_name,
-                    item_id: material.material_id,
-                    count: material.material_count,
-                    id_mk: material.id_mk,
-                    icon: material.icon,
-                    price: material.price,
-                    // chance: success_rate
-                })
+                // добавляем входные ингридиенты
+               recipe_input.push({ item_name: material.item_name, item_id: material.material_id, count: material.material_count, id_mk: material.id_mk, icon: material.icon, price: material.price, })
             });
-        }
 
+            // обновляем кэш рецептов
+            params.recipe_cache[id_mk] =
+            {
+                ...recipe_data,
+                input: recipe_input
+            }
+
+            
+        }
 
         if (!(id_mk in params.craft)) {
             // add new craft step
             params.craft[id_mk] = {
-                'item_name': params.cache[id_mk].item_name,
-                'level': level,
-                'hits': 0,
-                'output': params.cache[id_mk].output,
-                'item_id': params.cache[id_mk].item_id,
+                item_name: params.recipe_cache[id_mk].item_name,
+                level: level,
+                hits: 0,
+                output: params.recipe_cache[id_mk].output,
+                item_id: params.recipe_cache[id_mk].item_id,
 
-                'price': params.cache[id_mk].price,
-                'icon': params.cache[id_mk].icon,
-                'chance': params.cache[id_mk].chance,
+                price: params.recipe_cache[id_mk].price,
+                icon: params.recipe_cache[id_mk].icon,
+                chance: params.recipe_cache[id_mk].chance,
             };
         } else {
             // update level
             params.craft[id_mk].level = Math.max(params.craft[id_mk].level, level);
         }
 
-        const hit_count = Math.ceil(count / params.cache[id_mk].output);
+
+
+        const hit_count = Math.ceil(count / params.recipe_cache[id_mk].output);
         params.craft[id_mk].hits += hit_count;
 
+        console.table(params.craft)
 
-        for (const sub of params.cache[id_mk].input) {
+        for (const sub of params.recipe_cache[id_mk].input) {
 
             let sub_required = hit_count * sub.count;
             params.inventory[sub.item_id] -= sub_required;
@@ -130,17 +141,17 @@ export const craft_init = async (data) => {
 
 
     const params = {
-        cache: {},
+        recipe_cache: {},
         db: await openDb(),
         inventory: createSmartDict2(data.inventory), // production => replace true with use_inventory
         craft: {},
-        item_info: {},
+        items_cache: {},
         excluded: data.excluded ? data.excluded : {}
 
     };
 
     for (const [key, value] of Object.entries(data.schedule)) {
-        console.log(key, value)
+        // console.log(key, value)
         await process_craft(params, value.id_mk, value.count);
     }
 
@@ -149,7 +160,7 @@ export const craft_init = async (data) => {
     const finalLack = [];
     Object.entries(params.inventory).forEach(([id, count]) => {
         if (count < 0) {
-            const info = params.item_info[id];
+            const info = params.items_cache[id];
             finalLack.push({
                 item_id: parseInt(id),
                 count: Math.abs(count),
@@ -169,11 +180,20 @@ export const craft_init = async (data) => {
 }
 
 
-const debug_data = { "inventory": { "1872": 55555, "1878": 55555, "1879": 55555, "1880": 232222, "1881": 250, "1884": 55555, "1885": 55555, "1888": 55555, "1894": 55555, "4046": 55555 }, "schedule": { "539": { "item_id": 5296, "item_name": "Sealed Tallum Boots", "icon": "armor_t77_b_i02", "success_rate": 60, "id_mk": 539, "sort_order": 21036, "count": 1 }, "547": { "item_id": 5295, "item_name": "Sealed Tallum Gloves", "icon": "armor_t77_g_i02", "success_rate": 60, "id_mk": 547, "sort_order": 20985, "count": 1 }, "555": { "item_id": 5293, "item_name": "Sealed Tallum Plate Armor", "icon": "armor_t77_ul_i02", "success_rate": 60, "id_mk": 555, "sort_order": 20931, "count": 1 } }, "excluded": [] }
+const debug_data = {
+    "inventory": { "1872": 55555, "1878": 55555, "1879": 55555, "1880": 232222, "1881": 250, "1884": 55555, "1885": 55555, "1888": 55555, "1894": 55555, "4046": 55555 },
+    "schedule": {
+        // "539": { "item_id": 5296, "item_name": "Sealed Tallum Boots", "icon": "armor_t77_b_i02", "success_rate": 60, "id_mk": 539, "sort_order": 21036, "count": 1 },
+        // "547": { "item_id": 5295, "item_name": "Sealed Tallum Gloves", "icon": "armor_t77_g_i02", "success_rate": 60, "id_mk": 547, "sort_order": 20985, "count": 1 },
+        "555": { "item_id": 5293, "item_name": "Sealed Tallum Plate Armor", "icon": "armor_t77_ul_i02", "success_rate": 60, "id_mk": 555, "sort_order": 20931, "count": 1 }
+    },
+    "excluded": []
+}
 // {"inventory":{"1872":55555,"1878":55555,"1879":55555,"1880":232222,"1881":250,"1884":55555,"1885":55555,"1888":55555,"1894":55555,"4046":55555},"schedule":{"539":{"item_id":5296,"item_name":"Sealed Tallum Boots","icon":"armor_t77_b_i02","success_rate":60,"id_mk":539,"sort_order":21036,"count":1},"547":{"item_id":5295,"item_name":"Sealed Tallum Gloves","icon":"armor_t77_g_i02","success_rate":60,"id_mk":547,"sort_order":20985,"count":1},"555":{"item_id":5293,"item_name":"Sealed Tallum Plate Armor","icon":"armor_t77_ul_i02","success_rate":60,"id_mk":555,"sort_order":20931,"count":1}},"excluded":[]}
 
 
 
 
 const result = await craft_init(debug_data)
-console.log(result)
+console.table(result.craft)
+// console.log(prettify(result, 2))

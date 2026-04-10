@@ -36,13 +36,16 @@
             "runtimeArgs": [ "run", "dev" ],
             "console": "integratedTerminal"
         },
-         {
+        {
             "type": "node",
             "request": "launch",
             "name": "debug API",
             "program": "${workspaceFolder}/backend/craft_logic_dbg.js",
             "console": "integratedTerminal",
-            "restart": true
+            "restart": true,
+            "env": {
+                "DOTENV_CONFIG_QUIET": "true"
+            }
         },
     ],
     "compounds": [

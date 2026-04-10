@@ -164,10 +164,10 @@ export function prettify_v3(obj, maxDepth, currentDepth = 0, indentSpaces = 2) {
         output += '[\n';
         for (let i = 0; i < obj.length; i++) {
             // Если достигли глубины — схлопываем вложенности в строку, если нет — рекурсия
-            const value = (currentDepth >= maxDepth) 
-                ? JSON.stringify(obj[i]) 
+            const value = (currentDepth >= maxDepth)
+                ? JSON.stringify(obj[i])
                 : prettify_v2(obj[i], maxDepth, currentDepth + 1, indentSpaces);
-            
+
             output += indent.repeat(currentDepth + 1) + value;
             output += (i < obj.length - 1) ? ',\n' : '\n';
         }
@@ -195,4 +195,17 @@ export function prettify_v3(obj, maxDepth, currentDepth = 0, indentSpaces = 2) {
     return output;
 }
 
-export function pprint(value, depth = 1) { console.log(prettify(value, depth)); }
+export const justKeys = (obj, keys) => {
+    const result = {}
+    for (const k of keys) {
+
+        if (Object.hasOwn(obj, k)) {
+            result[k] = obj[k]
+        }
+
+
+
+    }
+    return result
+}
+// export function pprint(value, depth = 1) { console.log(prettify(value, depth)); }
