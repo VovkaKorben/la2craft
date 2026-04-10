@@ -14,7 +14,7 @@ const process_craft = async (params, id_mk, count, level = 0) => {
     try {
 
 
-        
+
         // check recipe in cache
         if (!(id_mk in params.cache)) {
             // read recipe from DB
@@ -94,7 +94,7 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
         const hit_count = Math.ceil(count / params.cache[id_mk].output);
         params.craft[id_mk].hits += hit_count;
-        
+
 
         for (const sub of params.cache[id_mk].input) {
 
@@ -126,22 +126,7 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
 
 export const craft_init = async (data) => {
-   /*
-    const test_inv = {
-1881:200
 
-
-    }
- const params = {
-        cache: {},
-        db: await openDb(),
-        inventory: createSmartDict2(test_inv), // production => replace true with use_inventory
-        craft: {},
-        item_info: {},
-        excluded: data.excluded
-
-    };
- */
 
 
     const params = {
@@ -150,11 +135,12 @@ export const craft_init = async (data) => {
         inventory: createSmartDict2(data.inventory), // production => replace true with use_inventory
         craft: {},
         item_info: {},
-        excluded: data.excluded
+        excluded: data.excluded ? data.excluded : {}
 
     };
-   
+
     for (const [key, value] of Object.entries(data.schedule)) {
+        console.log(key, value)
         await process_craft(params, value.id_mk, value.count);
     }
 
@@ -183,20 +169,11 @@ export const craft_init = async (data) => {
 }
 
 
-
-             const test_inv = {
-1881:250,
-1880:232222,
-1878:55555,
-1879:55555,
-1884:55555,
-1872:55555,
-1885:55555,
-1894:55555,
-1888:55555,
-4046:55555,
+const debug_data = { "inventory": { "1872": 55555, "1878": 55555, "1879": 55555, "1880": 232222, "1881": 250, "1884": 55555, "1885": 55555, "1888": 55555, "1894": 55555, "4046": 55555 }, "schedule": { "539": { "item_id": 5296, "item_name": "Sealed Tallum Boots", "icon": "armor_t77_b_i02", "success_rate": 60, "id_mk": 539, "sort_order": 21036, "count": 1 }, "547": { "item_id": 5295, "item_name": "Sealed Tallum Gloves", "icon": "armor_t77_g_i02", "success_rate": 60, "id_mk": 547, "sort_order": 20985, "count": 1 }, "555": { "item_id": 5293, "item_name": "Sealed Tallum Plate Armor", "icon": "armor_t77_ul_i02", "success_rate": 60, "id_mk": 555, "sort_order": 20931, "count": 1 } }, "excluded": [] }
+// {"inventory":{"1872":55555,"1878":55555,"1879":55555,"1880":232222,"1881":250,"1884":55555,"1885":55555,"1888":55555,"1894":55555,"4046":55555},"schedule":{"539":{"item_id":5296,"item_name":"Sealed Tallum Boots","icon":"armor_t77_b_i02","success_rate":60,"id_mk":539,"sort_order":21036,"count":1},"547":{"item_id":5295,"item_name":"Sealed Tallum Gloves","icon":"armor_t77_g_i02","success_rate":60,"id_mk":547,"sort_order":20985,"count":1},"555":{"item_id":5293,"item_name":"Sealed Tallum Plate Armor","icon":"armor_t77_ul_i02","success_rate":60,"id_mk":555,"sort_order":20931,"count":1}},"excluded":[]}
 
 
-    }
 
-const test_schedule = {5296:1,5295:1,5293:1}
+
+const result = await craft_init(debug_data)
+console.log(result)

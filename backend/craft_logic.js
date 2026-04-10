@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { createSmartDict2 } from './SmartMap.js';
 import { openDb } from './dbUtils.js';
+import { prettify } from './debug.js';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ const process_craft = async (params, id_mk, count, level = 0) => {
     try {
 
 
-        
+
         // check recipe in cache
         if (!(id_mk in params.cache)) {
             // read recipe from DB
@@ -94,7 +95,7 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
         const hit_count = Math.ceil(count / params.cache[id_mk].output);
         params.craft[id_mk].hits += hit_count;
-        
+
 
         for (const sub of params.cache[id_mk].input) {
 
@@ -126,7 +127,10 @@ const process_craft = async (params, id_mk, count, level = 0) => {
 
 
 export const craft_init = async (data) => {
-  
+
+
+    console.log(prettify(data, 0))
+
     const params = {
         cache: {},
         db: await openDb(),
@@ -136,7 +140,7 @@ export const craft_init = async (data) => {
         excluded: data.excluded
 
     };
-   
+
     for (const [key, value] of Object.entries(data.schedule)) {
         await process_craft(params, value.id_mk, value.count);
     }
